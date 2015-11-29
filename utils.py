@@ -5,10 +5,10 @@ import string
 from random import choice, Random, randint
 
 
-# def read_names(file_path):
-#     with open(file_path, 'r') as input_file:
-#         names = input_file.readlines()
-#     return map(lambda name: name.replace("\n", ""), names)
+def read_names(file_path):
+    with open(file_path, 'r') as input_file:
+        names = input_file.readlines()
+    return map(lambda name: name.replace("\n", ""), names)
 
 # def visualize_graph(nodes):
 #     G = nx.Graph()
@@ -44,12 +44,13 @@ class User(object):
         return string.join(symbols, '')
 
     def _traverse(self, root, users):
+        contacts = [c.to_dict() for c in root.contacts]
         item = dict(
             id=root.uid,
             name=root.user_info.name,
             age=root.user_info.age,
             gender=root.user_info.gender,
-            contacts=root.contacts
+            contacts=contacts
         )
         users.append(item)
         for contact in root.contacts:
@@ -58,11 +59,6 @@ class User(object):
 
     def traverse(self):
         return self._traverse(self, [])
-
-    def to_dict(self):
-        info = self._user_info.to_dict()
-        info.update(dict(uid=self._uid))
-        return info
 
     @property
     def user_info(self):
@@ -115,35 +111,45 @@ class User(object):
             id=self._uid
         )
 
+    def to_dict(self):
+        info = self._user_info.to_dict()
+        info.update(dict(uid=self._uid))
+        return info
+
 
 class UserInfo(object):
 
-    def __init__(self, id, age):
-        self.name = 'Bobby'
-        self.id = id
+    def __init__(self, name, age, gender):
+        self.name = name
         self.age = age
+        self.gender = gender
 
     def __repr__(self):
-        return 'User: {}, age: {}'.format(self.id, self.age)
+        return 'User: {}, age: {}, gender: {}'.format(self.name, self.age, self.gender)
 
     def to_dict(self):
         return self.__dict__
 
 
 class ContactsManager(object):
+    FILE_PATH_MALE = 'data/male.txt'
+    FILE_PATH_FEMALE = 'data/female.txt'
+    genders = ['male', 'female']
 
     def __init__(self):
-        self._ids = xrange(100)
+        self.male = read_names(self.FILE_PATH_MALE)
+        self.female = read_names(self.FILE_PATH_FEMALE)
 
     def _generate_age(self, avg_age, age_dev):
-        age = 0.0
-        while age == 0.0:
-            age = math.floor(random.gauss(avg_age, age_dev))
+        age = 0
+        while age <= 0:
+            age = int(math.floor(random.gauss(avg_age, age_dev)))
         return age
 
     def _contacts_generator(self, config, count):
         for i in xrange(count):
-            yield self.generate_contact(config)
+            user_info = self.generate_contact(config)
+            yield User(user_info)
 
     def generate_contacts(self, config, count):
         contacts = self._contacts_generator(config, count)
@@ -152,11 +158,15 @@ class ContactsManager(object):
     def generate_contact(self, config):
         avg_age = config['avg_age']
         avg_dev = config['age_dev']
-        user_info = UserInfo(
-            choice(self._ids),
-            self._generate_age(avg_age, avg_dev)
+        user_info = dict(
+            age=self._generate_age(avg_age, avg_dev),
+            gender=choice(self.genders)
         )
-        return user_info
+        if 'male' in user_info.values():
+            user_info.update(dict(name=choice(self.male)))
+        if 'female' in user_info.values():
+            user_info.update(dict(name=choice(self.female)))
+        return UserInfo(**user_info)
 
 
 class ContactsTree(object):
@@ -169,10 +179,11 @@ class ContactsTree(object):
     def _generate_tree(self, user, depth):
         count = randint(3, 5)
         user.contacts = self.manager.generate_contacts(self.config, count)
-        if depth >= 0:
-            for contact in user.contacts:
-                contact.parent = user
-                self._generate_tree(contact, depth-1)
+        if depth < 0:
+            return
+        for contact in user.contacts:
+            contact.parent = user
+            self._generate_tree(contact, depth-1)
 
     def generate_tree(self):
         user = User(self.manager.generate_contact(self.config))
