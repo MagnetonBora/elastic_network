@@ -1,4 +1,12 @@
 $(function() {
+
+  var jqxhr = $.get("http://localhost:5000/contacts", function(response) {
+    console.log('Received data:');
+    _.each(response.contacts, function(contact) {
+      console.log(contact);
+    });
+  });
+
   console.log('Initialiation of cytoscape...')
 
   var cy = cytoscape({
