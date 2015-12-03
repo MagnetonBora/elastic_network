@@ -46,7 +46,7 @@ class User(object):
     def _traverse(self, root, users):
         contacts = [c.to_dict() for c in root.contacts]
         item = dict(
-            id=root.uid,
+            uid=root.uid,
             name=root.user_info.name,
             age=root.user_info.age,
             gender=root.user_info.gender,
@@ -177,7 +177,7 @@ class ContactsTree(object):
         self.manager = ContactsManager()
 
     def _generate_tree(self, user, depth):
-        count = randint(3, 5)
+        count = randint(1, 3)
         user.contacts = self.manager.generate_contacts(self.config, count)
         if depth < 0:
             return
