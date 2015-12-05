@@ -1,32 +1,19 @@
+import sys
 import math
 import random
 import string
-
+import logging
 from random import choice, Random, randint
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.StreamHandler(sys.stdout))
+logger.setLevel(logging.INFO)
 
 
 def read_names(file_path):
     with open(file_path, 'r') as input_file:
         names = input_file.readlines()
     return map(lambda name: name.replace("\n", ""), names)
-
-# def visualize_graph(nodes):
-#     G = nx.Graph()
-
-#     node_labels = {}
-#     for node in nodes:
-#         for contact in node['contacts']:
-#             G.add_edge(node['id'], contact.uid)
-#             node_labels[contact.uid] = contact.uid
-
-#     settings = {        
-#         'node_shape': 'o',
-#         'with_lables': True,
-#         'labels': node_labels
-#     }
-
-#     nx.draw_graphviz(G, **settings)
-#     plt.show()
 
 
 class User(object):
@@ -50,7 +37,8 @@ class User(object):
             name=root.user_info.name,
             age=root.user_info.age,
             gender=root.user_info.gender,
-            contacts=contacts
+            contacts=contacts,
+            messages_number=len(root.replies)
         )
         users.append(item)
         for contact in root.contacts:
@@ -189,3 +177,87 @@ class ContactsTree(object):
         user = User(self.manager.generate_contact(self.config))
         self._generate_tree(user, self.depth-1)
         return user
+
+
+class SimulationManager(object):
+
+    def __init__(self, sender, settings):
+        self._current_time = 0
+        self._time_limit = settings['time_limit']
+        self._max_depth = 10
+        self._sender = sender
+        self._settings = settings
+        self._question = settings['question']
+        self._answers = settings['answers']
+        self._avg_request_number = 0
+        self._use_profile_spreading = settings.get('use_profile_spreading', False)
+
+    def __repr__(self):
+        return '{}'.format(self._sender)
+
+    def statistics(self):
+        replies = self._sender.replies
+        stats = dict((item, replies.count(item)) for item in replies)
+        total_answers = float(sum(stats.values()))
+        stats_relative = {
+            k: 100.0*v/total_answers
+            for k, v in stats.iteritems()
+        }
+        return stats_relative
+
+    def average_request_number(self):
+        return self._avg_request_number
+
+    def start_simulation(self):
+        self._invoke(self._sender, 1)
+
+    def _invoke(self, user, depth):
+        self._current_time += random.gauss(1, 0.1)
+        self._avg_request_number += 1
+
+        logger.info('Current time: {}'.format(self._current_time))
+
+        if self._current_time > self._time_limit:
+            return
+
+        if depth > self._max_depth:
+            return
+
+        reply = -math.log(random.random() + 0.0001)/user.user_info.age
+        if reply < self._settings['reply_prob']:
+            answer = user.answer(self._answers)
+            if user.parent is not None:
+                logger.info(
+                    'User {child} id={uid} replies to {parent} answer {answer}'.format(
+                        uid=user.uid,
+                        child=user.user_info.name,
+                        parent=user.parent.user_info.name,
+                        answer=answer
+                    )
+                )
+                user.parent.replies.append(answer)
+                logger.info(
+                    'Piggybacking! User {} found out that {} is {} years old'.format(
+                        user.user_info.name,
+                        user.parent.user_info.name,
+                        int(user.user_info.age)
+                    )
+                )
+
+        for contact in user.contacts:
+            if self._use_profile_spreading and contact.user_info.age > user.user_info.age:
+                continue
+
+            forward = -math.log(random.random() + 0.0001)/contact.user_info.age
+            if forward < self._settings['forwarding_prob']:
+                logger.info(
+                    'User {name} id={uid} forwards message'.format(
+                        name=contact.user_info.name,
+                        uid=contact.uid
+                    )
+                )
+                self._invoke(contact, depth+1)
+
+        if user.parent is not None:
+            for item in user.replies:
+                user.parent.replies.append(item)
