@@ -2,8 +2,9 @@ import sys
 import flask
 import logging
 
-from utils import ContactsManager, ContactsTree, SimulationManager
+from config import SETTINGS, AGE_PARAMS, DEPTH
 from flask import render_template, url_for, Flask
+from utils import ContactsManager, ContactsTree, SimulationManager
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -20,7 +21,7 @@ def make_edges(userslist):
     edges = []
     for user in userslist:
         parent_id = user['uid']
-        edges += [(parent_id, c['uid'], user['messages_number']) for c in user['contacts']]
+        edges += [(parent_id, c['uid']) for c in user['contacts']]
     return edges
 
 
@@ -32,48 +33,32 @@ def home():
 @app.route('/tree')
 def tree():
     with app.app_context():
-        root = ContactsTree(2, dict(avg_age=25, age_dev=5)).generate_tree()
-        users = root.traverse()
-        logger.info("Generating test tree {}".format(users))
+        sender = ContactsTree(DEPTH, AGE_PARAMS).generate_tree()
+        simulator = SimulationManager(sender=sender, settings=SETTINGS)
+        users = simulator.traverse()
         edges = make_edges(users)
-        tree_data = dict(edges=edges, users=users)
-        return flask.jsonify(tree_data)
+        logger.info("Generating test tree {}".format(users))
+        return flask.jsonify(dict(edges=edges, users=users))
 
 
 @app.route('/simulation')
 def simulation():
     with app.app_context():
-        depth = 3
-        age_params = dict(avg_age=25, age_dev=5)
-        settings = {
-            "use_profile_spreading": False,
-        	"question": "What are the best movie?",
-        	"answers": ["A Beautiful mind", "Terminator", "Matrix"],
-        	"clasterization_factor": 1,
-        	"time_limit": 1000,
-        	"reply_prob": 1.0,
-        	"forwarding_prob": 1.0,
-        	"depth": 2,
-        	"age_params": {
-        		"avg_age": 25,
-        		"age_dev": 10
-        	}
-        }
-        sender = ContactsTree(depth, age_params).generate_tree()
-        simulator = SimulationManager(sender=sender, settings=settings)
+        sender = ContactsTree(DEPTH, AGE_PARAMS).generate_tree()
+        simulator = SimulationManager(sender=sender, settings=SETTINGS)
         simulator.start_simulation()
-        users = sender.traverse()
+        users = simulator.traverse()
         edges = make_edges(users)
         response = dict(
             users=users,
             edges=edges,
-        	statistics=dict(
+            statistics=dict(
                 votes=simulator.statistics(),
                 request_number=simulator.average_request_number()
-        	)
+            )
         )
         return flask.jsonify(response)
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

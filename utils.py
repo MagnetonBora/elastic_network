@@ -10,12 +10,6 @@ logger.addHandler(logging.StreamHandler(sys.stdout))
 logger.setLevel(logging.INFO)
 
 
-def read_names(file_path):
-    with open(file_path, 'r') as input_file:
-        names = input_file.readlines()
-    return map(lambda name: name.replace("\n", ""), names)
-
-
 class User(object):
 
     def __init__(self, user_info, contacts=None):
@@ -23,30 +17,13 @@ class User(object):
         self._contacts = [] if contacts is None else contacts
         self._user_info = user_info
         self._replies = []
+        self._replies_amount = 0
         self._demand_replies = 0
         self._parent = None
 
     def _generate_uid(self, length):
         symbols = [choice(string.ascii_letters + string.digits) for i in xrange(length)]
         return string.join(symbols, '')
-
-    def _traverse(self, root, users):
-        contacts = [c.to_dict() for c in root.contacts]
-        item = dict(
-            uid=root.uid,
-            name=root.user_info.name,
-            age=root.user_info.age,
-            gender=root.user_info.gender,
-            contacts=contacts,
-            messages_number=len(root.replies)
-        )
-        users.append(item)
-        for contact in root.contacts:
-            self._traverse(contact, users)
-        return users
-
-    def traverse(self):
-        return self._traverse(self, [])
 
     @property
     def user_info(self):
@@ -125,8 +102,13 @@ class ContactsManager(object):
     genders = ['male', 'female']
 
     def __init__(self):
-        self.male = read_names(self.FILE_PATH_MALE)
-        self.female = read_names(self.FILE_PATH_FEMALE)
+        self.male = self._read_names(self.FILE_PATH_MALE)
+        self.female = self._read_names(self.FILE_PATH_FEMALE)
+
+    def _read_names(self, file_path):
+        with open(file_path, 'r') as input_file:
+            names = input_file.readlines()
+        return map(lambda name: name.replace("\n", ""), names)
 
     def _generate_age(self, avg_age, age_dev):
         age = 0
@@ -183,33 +165,51 @@ class SimulationManager(object):
 
     def __init__(self, sender, settings):
         self._current_time = 0
-        self._time_limit = settings['time_limit']
-        self._max_depth = 10
-        self._sender = sender
         self._settings = settings
         self._question = settings['question']
         self._answers = settings['answers']
+        self._time_limit = settings['time_limit']
+        self._max_depth = 10
+        self._sender = sender
         self._avg_request_number = 0
         self._use_profile_spreading = settings.get('use_profile_spreading', False)
 
-    def __repr__(self):
-        return '{}'.format(self._sender)
+    def _traverse(self, root, users):
+        contacts = [c.to_dict() for c in root.contacts]
 
+        item = dict(
+            uid=root.uid,
+            name=root.user_info.name,
+            age=root.user_info.age,
+            gender=root.user_info.gender,
+            contacts=contacts
+        )
+
+        for contact in root.contacts:
+            self._traverse(contact, users)
+        users.append(item)
+        return users
+
+    def traverse(self):
+        return self._traverse(self._sender, [])
+    
     def statistics(self):
         replies = self._sender.replies
         stats = dict((item, replies.count(item)) for item in replies)
         total_answers = float(sum(stats.values()))
-        stats_relative = {
-            k: 100.0*v/total_answers
+        stats_relative = [
+            {'voted_item': k, 'votes_amount': math.floor(100.0*v/total_answers)}
             for k, v in stats.iteritems()
-        }
+        ]
         return stats_relative
 
     def average_request_number(self):
         return self._avg_request_number
 
     def start_simulation(self):
+        logger.info('STARTING DISCRETE TIME SIMULATION')
         self._invoke(self._sender, 1)
+        logger.info('DISCRETE TIME SIMULATION HAS BEEN FINISHED')
 
     def _invoke(self, user, depth):
         self._current_time += random.gauss(1, 0.1)
@@ -251,9 +251,9 @@ class SimulationManager(object):
             forward = -math.log(random.random() + 0.0001)/contact.user_info.age
             if forward < self._settings['forwarding_prob']:
                 logger.info(
-                    'User {name} id={uid} forwards message'.format(
-                        name=contact.user_info.name,
-                        uid=contact.uid
+                    'User {} forwards message to {}'.format(
+                        user.user_info.name,
+                        contact.user_info.name
                     )
                 )
                 self._invoke(contact, depth+1)
@@ -261,3 +261,6 @@ class SimulationManager(object):
         if user.parent is not None:
             for item in user.replies:
                 user.parent.replies.append(item)
+
+    def __repr__(self):
+        return '{}'.format(self._sender)

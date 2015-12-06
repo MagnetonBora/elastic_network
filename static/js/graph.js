@@ -8,6 +8,15 @@ $(function() {
     console.log('Stop');
   };
 
+  var show_statistics = function(statistics) {
+    $("#statistics").append('<span>Statistics</span><br>');    
+    $("#statistics").append('<span>Total requests number: ' + statistics.request_number + '</span><br>');
+    _.each(statistics.votes, function(vote) {
+      $("#statistics").append('<span>' + vote.voted_item + '&#32;gots&#32;</span>');
+      $("#statistics").append('<span>' + vote.votes_amount + '%&#32;of&#32;votes</span><br>');
+    });
+  };
+
   var format_nodes = function(nodes) {
     var formatted_items = [];
     _.each(nodes, function(node) {
@@ -45,6 +54,8 @@ $(function() {
     var nodes = format_nodes(response.users);
     var edges = format_edges(response.edges);
 
+    show_statistics(response.statistics);
+
     var cy = cytoscape({
       container: document.getElementById('cy'),
       style: [
@@ -59,8 +70,7 @@ $(function() {
           selector: 'edge',
           style: {
             'width': 3,
-            'line-color': 'green',
-            'label': 'data(messages_number)'
+            'line-color': 'green'
           }
         }
       ],

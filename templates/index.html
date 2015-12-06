@@ -3,32 +3,28 @@
 	<head></head>
     <style>
       #cy {
-        width: 90%;
-        height: 90%;
-        position: absolute;
+        width: 80%;
+        height: 80%;
+        float: left;
         left: 60;
         top: 60;
         z-index: 999;
       }
     </style>
-    <script>
-        var onClick = function() {
-            console.log('Try click it...');
-        };
-    </script>
 	<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
 	<script type="text/javascript" src="static/js/script/cytoscape.min.js"></script>
 	<script type="text/javascript" src="static/js/underscore/underscore-min.js"></script>
 	<script type="text/javascript" src="static/js/graph.js"></script>
     <body>
         <div id="menu">
-            <a onclick="onClick()">Click it</a><br>
-            <a href="/">Home</a><br>
-            <a href="/tree">Tree</a>
+            <a href="/">Simulation without profile spreading</a><br>
+            <a href="/tree">Contacts</a>
         </div>
         </div>
     	<div id="main_layout">
     		<div id="cy"></div>
     	</div>
+        <div id="statistics">
+        </div>
     </body>
 </html>
