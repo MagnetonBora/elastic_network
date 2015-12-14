@@ -201,7 +201,7 @@ class SimulationManager(object):
             {'voted_item': k, 'votes_amount': math.floor(100.0*v/total_answers)}
             for k, v in stats.iteritems()
         ]
-        return stats_relative
+        return dict(replies_number=len(replies), info=stats_relative)
 
     def average_request_number(self):
         return self._avg_request_number

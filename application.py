@@ -49,11 +49,13 @@ def simulation():
         simulator.start_simulation()
         users = simulator.traverse()
         edges = make_edges(users)
+        statistics = simulator.statistics()
         response = dict(
             users=users,
             edges=edges,
             statistics=dict(
-                votes=simulator.statistics(),
+                votes=statistics['info'],
+                replies_number=statistics['replies_number'],
                 request_number=simulator.average_request_number()
             )
         )
@@ -61,4 +63,4 @@ def simulation():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

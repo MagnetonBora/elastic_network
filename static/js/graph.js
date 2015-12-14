@@ -11,6 +11,7 @@ $(function() {
   var show_statistics = function(statistics) {
     $("#statistics").append('<span>Statistics</span><br>');    
     $("#statistics").append('<span>Total requests number: ' + statistics.request_number + '</span><br>');
+    $("#statistics").append('<span>Total replies number: ' + statistics.replies_number + '</span><br>');
     _.each(statistics.votes, function(vote) {
       $("#statistics").append('<span>' + vote.voted_item + '&#32;gots&#32;</span>');
       $("#statistics").append('<span>' + vote.votes_amount + '%&#32;of&#32;votes</span><br>');
