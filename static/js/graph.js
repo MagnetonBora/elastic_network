@@ -12,9 +12,15 @@ $(function() {
     $("#statistics").append('<span>Statistics</span><br>');    
     $("#statistics").append('<span>Total requests number: ' + statistics.request_number + '</span><br>');
     $("#statistics").append('<span>Total replies number: ' + statistics.replies_number + '</span><br>');
+
     _.each(statistics.votes, function(vote) {
       $("#statistics").append('<span>' + vote.voted_item + '&#32;gots&#32;</span>');
       $("#statistics").append('<span>' + vote.votes_amount + '%&#32;of&#32;votes</span><br>');
+    });
+
+    $("#statistics").append('<br><span>Replies log:</span><br>');
+    _.each(statistics.replies_log, function(reply) {
+      $("#statistics").append('<span>' + reply + '</span><br>');
     });
   };
 

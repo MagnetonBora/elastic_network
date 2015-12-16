@@ -164,6 +164,7 @@ class ContactsTree(object):
 class SimulationManager(object):
 
     def __init__(self, sender, settings):
+        self._replies_log = []
         self._current_time = 0
         self._settings = settings
         self._question = settings['question']
@@ -201,7 +202,7 @@ class SimulationManager(object):
             {'voted_item': k, 'votes_amount': math.floor(100.0*v/total_answers)}
             for k, v in stats.iteritems()
         ]
-        return dict(replies_number=len(replies), info=stats_relative)
+        return {'replies_number': len(replies), 'info': stats_relative, 'replies_log': self._replies_log}
 
     def average_request_number(self):
         return self._avg_request_number
@@ -226,15 +227,11 @@ class SimulationManager(object):
         reply = -math.log(random.random() + 0.0001)/user.user_info.age
         if reply < self._settings['reply_prob']:
             answer = user.answer(self._answers)
+            tmpl = 'User {} id={} replies to {} answer {}'
             if user.parent is not None:
-                logger.info(
-                    'User {child} id={uid} replies to {parent} answer {answer}'.format(
-                        uid=user.uid,
-                        child=user.user_info.name,
-                        parent=user.parent.user_info.name,
-                        answer=answer
-                    )
-                )
+                info = tmpl.format(user.user_info.name, user.uid, user.parent.user_info.name, answer)
+                logger.info(info)
+                self._replies_log.append(info)
                 user.parent.replies.append(answer)
                 logger.info(
                     'Piggybacking! User {} found out that {} is {} years old'.format(

@@ -55,6 +55,7 @@ def simulation():
             edges=edges,
             statistics=dict(
                 votes=statistics['info'],
+                replies_log=statistics['replies_log'],
                 replies_number=statistics['replies_number'],
                 request_number=simulator.average_request_number()
             )
