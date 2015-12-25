@@ -147,7 +147,8 @@ class ContactsTree(object):
         self.manager = ContactsManager()
 
     def _generate_tree(self, user, depth):
-        count = randint(1, 3)
+        count = randint(3, 5)
+        # count = 2
         user.contacts = self.manager.generate_contacts(self.config, count)
         if depth < 0:
             return
@@ -214,7 +215,6 @@ class SimulationManager(object):
 
     def _invoke(self, user, depth):
         self._current_time += random.gauss(1, 0.1)
-        self._avg_request_number += 1
 
         logger.info('Current time: {}'.format(self._current_time))
 
@@ -244,9 +244,10 @@ class SimulationManager(object):
         for contact in user.contacts:
             if self._use_profile_spreading and contact.user_info.age > user.user_info.age:
                 continue
-
-            forward = -math.log(random.random() + 0.0001)/contact.user_info.age
+            forward = random.random()
+            # forward = -math.log(random.random() + 0.0001)/contact.user_info.age
             if forward < self._settings['forwarding_prob']:
+                self._avg_request_number += 1
                 logger.info(
                     'User {} forwards message to {}'.format(
                         user.user_info.name,

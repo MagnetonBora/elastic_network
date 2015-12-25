@@ -20,8 +20,9 @@
     <body>
         <div id="menu">
             <a href="/">Simulation without profile spreading</a><br>
-            <a href="/tree">Contacts</a>
-        </div>
+            <a href="/tree">Contacts</a><br>
+            <a href="/container">Container</a>
+            <a href="javascript:" onclick="return onClick()">Save</a>
         </div>
     	<div id="main_layout">
     		<div id="cy"></div>
@@ -29,4 +30,19 @@
         <div id="statistics">
         </div>
     </body>
+    <script type="text/javascript">
+        var onClick = function() {
+            var data = {
+                graph: this.graph
+            };
+            $.ajax("/save", {
+                type: 'POST',
+                data: JSON.stringify(data),
+                success: function() {
+                    console.log('Done');
+                },
+                contentType: 'application/json'
+            });
+        };
+    </script>
 </html>

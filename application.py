@@ -1,7 +1,9 @@
+import os
 import sys
 import flask
 import logging
 
+from flask import request
 from config import SETTINGS, AGE_PARAMS, DEPTH
 from flask import render_template, url_for, Flask
 from utils import ContactsManager, ContactsTree, SimulationManager
@@ -63,5 +65,20 @@ def simulation():
         return flask.jsonify(response)
 
 
+@app.route('/save', methods=['POST'])
+def save():
+    with open('/data/graph.data', 'w') as f:
+        f.write(request.data)
+    return 'Ok'
+
+
+def _create_folder_structure():
+    try:
+        os.mkdir('data')
+    except Exception:
+        pass
+
+
 if __name__ == '__main__':
+    _create_folder_structure()
     app.run(debug=True)

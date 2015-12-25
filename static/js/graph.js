@@ -56,10 +56,17 @@ $(function() {
 
   console.log('Initialiation of cytoscape...');
 
+  graph = {};
+
   var jqxhr = $.get("http://localhost:5000/simulation", function(response) {
     console.log('Received data: ', response);
     var nodes = format_nodes(response.users);
     var edges = format_edges(response.edges);
+
+    graph = {
+      nodes: nodes,
+      edges: edges
+    }
 
     show_statistics(response.statistics);
 
