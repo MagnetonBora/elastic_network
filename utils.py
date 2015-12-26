@@ -12,8 +12,8 @@ logger.setLevel(logging.INFO)
 
 class User(object):
 
-    def __init__(self, user_info, contacts=None):
-        self._uid = self._generate_uid(8)
+    def __init__(self, user_info, uid=None, contacts=None):
+        self._uid = self._generate_uid(8) if uid is None else uid
         self._contacts = [] if contacts is None else contacts
         self._user_info = user_info
         self._replies = []
@@ -147,8 +147,8 @@ class ContactsTree(object):
         self.manager = ContactsManager()
 
     def _generate_tree(self, user, depth):
-        count = randint(3, 5)
-        # count = 2
+        # count = randint(3, 5)
+        count = 2
         user.contacts = self.manager.generate_contacts(self.config, count)
         if depth < 0:
             return
@@ -175,6 +175,14 @@ class SimulationManager(object):
         self._sender = sender
         self._avg_request_number = 0
         self._use_profile_spreading = settings.get('use_profile_spreading', False)
+
+    @staticmethod
+    def serialize():
+        pass
+
+    @staticmethod
+    def deserialize(tree_dict):
+        pass
 
     def _traverse(self, root, users):
         contacts = [c.to_dict() for c in root.contacts]

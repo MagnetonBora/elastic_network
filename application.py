@@ -6,7 +6,7 @@ import logging
 from flask import request
 from config import SETTINGS, AGE_PARAMS, DEPTH
 from flask import render_template, url_for, Flask
-from utils import ContactsManager, ContactsTree, SimulationManager
+from utils import ContactsManager, ContactsTree, SimulationManager, UserInfo, User
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -44,26 +44,43 @@ def tree():
         return flask.jsonify(dict(edges=edges, users=users))
 
 
-@app.route('/simulation')
+@app.route('/simulation', methods=['POST'])
 def simulation():
+    with app.app_context():
+        # graph = flask.json.loads(request.data)
+        # sender_data = graph['root']
+        # uid = sender_data['uid']
+        # sender_data.pop('uid')
+        # user_info = UserInfo(**sender_data)
+        # sender = User(user_info, uid)
+
+        # simulator = SimulationManager(sender=sender, settings=SETTINGS)
+        # simulator.start_simulation()
+
+        # statistics = simulator.statistics()
+        # response = dict(
+        #     nodes=graph['nodes'],
+        #     edges=graph['edges'],
+        #     statistics=dict(
+        #         votes=statistics['info'],
+        #         replies_log=statistics['replies_log'],
+        #         replies_number=statistics['replies_number'],
+        #         request_number=simulator.average_request_number()
+        #     )
+        # )
+
+        # return flask.jsonify(response)
+
+        return 'Ok'
+
+
+@app.route('/generate-tree')
+def generate_tree():
     with app.app_context():
         sender = ContactsTree(DEPTH, AGE_PARAMS).generate_tree()
         simulator = SimulationManager(sender=sender, settings=SETTINGS)
-        simulator.start_simulation()
         nodes = simulator.traverse()
-        edges = make_edges(nodes)
-        statistics = simulator.statistics()
-        response = dict(
-            nodes=nodes,
-            edges=edges,
-            statistics=dict(
-                votes=statistics['info'],
-                replies_log=statistics['replies_log'],
-                replies_number=statistics['replies_number'],
-                request_number=simulator.average_request_number()
-            )
-        )
-        return flask.jsonify(response)
+        return flask.jsonify(dict(root=sender.to_dict(), nodes=nodes, edges=make_edges(nodes)))
 
 
 @app.route('/save', methods=['POST'])

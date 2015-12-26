@@ -9,6 +9,18 @@ var onstop = function() {
   console.log('Stop');
 };
 
+var simulate = function() {
+  var url = '/simulation';
+  $.ajax(url, {
+    type: 'POST',
+    data: JSON.stringify(graph),
+    success: function() {
+      console.log('Done');
+    },
+    contentType: 'application/json'
+  });
+};
+
 var showStatistics = function(statistics) {
   $("#statistics").append('<span>Statistics</span><br>');    
   $("#statistics").append('<span>Total requests number: ' + statistics.request_number + '</span><br>');
@@ -99,14 +111,14 @@ var formatEdges = function(edges) {
 };
 
 var generateGraph = function() {
-  $.get("http://localhost:5000/simulation", function(response) {
+  $.get("/generate-tree", function(response) {
     console.log('Received data: ', response);
     graph = {
+      root: response.root,
       nodes: formatNodes(response.nodes),
       edges: formatEdges(response.edges)
     }
     renderGraph(graph.nodes, graph.edges);
-    showStatistics(response.statistics);
   });
 };
 
@@ -114,7 +126,12 @@ var loadGraph = function(name) {
   console.log('Loading graph: ', name);
   var url = "http://localhost:5000/load/" + name;
   $.get(url, function(response) {
-    console.log('Received data: ', response);    
-    renderGraph(response.nodes, response.edges);
+    console.log('Received data: ', response);
+    graph = {
+      root: response.root,
+      nodes: response.nodes,
+      edges: response.edges
+    };
+    renderGraph(graph.nodes, graph.edges);
   });
 };
