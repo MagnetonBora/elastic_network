@@ -19,16 +19,19 @@
     <script type="text/javascript" src="static/js/graph.js"></script>
     <body>
         <div id="menu">
-            <a href="javascript:" onclick="return generateGraph()">Generate graph</a><br>
+            <a href="javascript:" onclick="return generateGraph()">Generate contacts tree</a><br>
             <a href="/">Simulation without profile spreading</a><br>
             <a href="/tree">Contacts</a><br>
             <a href="javascript:" onclick="return onClick()">Save graph as </a>
-            <input id="graph_name" type='text' />
+            <input id="graph_name" type='text' /><br>
             
             <!-- List of all available graphs -->
-            {% for graph in graphs %}
-                <li><a href="javascript:" onclick="return loadGraph('{{graph|safe}}')">{{ graph }}</a></li>
-            {% endfor %}            
+            {% if graphs %}
+                <strong>You have the following graphs:</strong><br>
+                {% for graph in graphs %}
+                    <li><a href="javascript:" onclick="return loadGraph('{{graph|safe}}')">{{ graph }}</a></li>
+                {% endfor %}
+            {% endif %}            
 
         </div>
     	<div id="main_layout">

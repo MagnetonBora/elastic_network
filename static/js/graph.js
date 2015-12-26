@@ -9,7 +9,7 @@ var onstop = function() {
   console.log('Stop');
 };
 
-var show_statistics = function(statistics) {
+var showStatistics = function(statistics) {
   $("#statistics").append('<span>Statistics</span><br>');    
   $("#statistics").append('<span>Total requests number: ' + statistics.request_number + '</span><br>');
   $("#statistics").append('<span>Total replies number: ' + statistics.replies_number + '</span><br>');
@@ -68,7 +68,7 @@ var renderGraph = function(nodes, edges) {
     });
 };
 
-var format_nodes = function(nodes) {
+var formatNodes = function(nodes) {
   var formatted_items = [];
   _.each(nodes, function(node) {
     formatted_items.push({
@@ -84,7 +84,7 @@ var format_nodes = function(nodes) {
   return formatted_items;
 };
 
-var format_edges = function(edges) {
+var formatEdges = function(edges) {
   var formatted_items = [];
   _.each(edges, function(edge) {
     formatted_items.push({
@@ -102,11 +102,11 @@ var generateGraph = function() {
   $.get("http://localhost:5000/simulation", function(response) {
     console.log('Received data: ', response);
     graph = {
-      nodes: format_nodes(response.users),
-      edges: format_edges(response.edges)
+      nodes: formatNodes(response.nodes),
+      edges: formatEdges(response.edges)
     }
     renderGraph(graph.nodes, graph.edges);
-    show_statistics(response.statistics);
+    showStatistics(response.statistics);
   });
 };
 

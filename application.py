@@ -50,11 +50,11 @@ def simulation():
         sender = ContactsTree(DEPTH, AGE_PARAMS).generate_tree()
         simulator = SimulationManager(sender=sender, settings=SETTINGS)
         simulator.start_simulation()
-        users = simulator.traverse()
-        edges = make_edges(users)
+        nodes = simulator.traverse()
+        edges = make_edges(nodes)
         statistics = simulator.statistics()
         response = dict(
-            users=users,
+            nodes=nodes,
             edges=edges,
             statistics=dict(
                 votes=statistics['info'],
