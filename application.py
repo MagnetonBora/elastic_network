@@ -29,7 +29,8 @@ def make_edges(userslist):
 
 @app.route('/')
 def home():
-    return render_template("index.html")
+    graphs = os.listdir('data/graphs')
+    return render_template("index.html", graphs=graphs)
 
 
 @app.route('/tree')
@@ -66,15 +67,25 @@ def simulation():
 
 
 @app.route('/save', methods=['POST'])
-def save():
-    with open('/data/graph.data', 'w') as f:
-        f.write(request.data)
+def save_graph():
+    data = flask.json.loads(request.data)
+    path = 'data/graphs/{}'.format(data['name'])
+    with open(path, 'w') as f:
+        f.write(flask.json.dumps(data['graph']))
     return 'Ok'
+
+
+@app.route('/load/<path:name>')
+def load_graph(name):
+    path = "data/graphs/{}".format(name)
+    with open(path, 'r') as f:
+        graph = flask.json.load(f)
+        return flask.jsonify(graph)
 
 
 def _create_folder_structure():
     try:
-        os.mkdir('data')
+        os.mkdir('data/graphs')
     except Exception:
         pass
 

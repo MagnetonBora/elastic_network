@@ -16,13 +16,20 @@
     <script type="text/javascript" src="static/js/jquery.min.js"></script>
 	<script type="text/javascript" src="static/js/script/cytoscape.min.js"></script>
 	<script type="text/javascript" src="static/js/underscore/underscore-min.js"></script>
-	<script type="text/javascript" src="static/js/graph.js"></script>
+    <script type="text/javascript" src="static/js/graph.js"></script>
     <body>
         <div id="menu">
+            <a href="javascript:" onclick="return generateGraph()">Generate graph</a><br>
             <a href="/">Simulation without profile spreading</a><br>
             <a href="/tree">Contacts</a><br>
-            <a href="/container">Container</a>
-            <a href="javascript:" onclick="return onClick()">Save</a>
+            <a href="javascript:" onclick="return onClick()">Save graph as </a>
+            <input id="graph_name" type='text' />
+            
+            <!-- List of all available graphs -->
+            {% for graph in graphs %}
+                <li><a href="javascript:" onclick="return loadGraph('{{graph|safe}}')">{{ graph }}</a></li>
+            {% endfor %}            
+
         </div>
     	<div id="main_layout">
     		<div id="cy"></div>
@@ -33,6 +40,7 @@
     <script type="text/javascript">
         var onClick = function() {
             var data = {
+                name: $(graph_name)[0].value,
                 graph: this.graph
             };
             $.ajax("/save", {
