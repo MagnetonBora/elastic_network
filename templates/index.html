@@ -10,7 +10,7 @@
         left: 30;
         top: 60;
         z-index: 999;
-        margin-top: 60px;
+        margin-top: 130px;
       };
       #statistics {
         float: left;
@@ -31,10 +31,13 @@
                       <a href="javascript:" onclick="return generateGraph()">Generate contacts tree</a>
                   </li>
                   <li role="presentation" style="width: 300px;">
-                      <a href="javascript:" onclick="return simulate()">Simulation with profile spreading</a>
+                      <a href="javascript:" onclick="return simulate(true)">Simulation with profile spreading</a>
                   </li>
                   <li role="presentation" style="width: 300px;">
-                      <a href="javascript:">Simulation without profile spreading</a>
+                      <a href="javascript:" onclick="return simulate(false)">Simulation without profile spreading</a>
+                  </li>
+                  <li role="presentation" style="width: 300px;">
+                      <a href="javascript:" onclick="return clearStats()">Clear log</a>
                   </li>
                 </ul>
             </div>
@@ -45,8 +48,9 @@
                     <ul id="graph_list_container">
                     <strong>You have the following graphs:</strong><br>
                     {% for graph in graphs %}
-                        <li style="margin-left: 10px;">
+                        <li id="{{ graph }}" style="margin-left: 10px;">
                             <a href="javascript:" onclick="return loadGraph('{{graph|safe}}')">{{ graph }}</a>
+                            <a href="javascript:" onclick="return removeGraph('{{graph|safe}}')"> | X</a>
                         </li>
                     {% endfor %}
                     </ul>
@@ -62,6 +66,7 @@
             </div>
 
             <div id='layouts' style="height: 20px; margin-top: 10px;">
+                <strong>Layout types:</strong><br>
                 <a href="javascript:" onclick="return refreshGraph('spread')">Spread</a><br>
                 <a href="javascript:" onclick="return refreshGraph('cose-bilkent')">Cose-bilkent</a><br>
                 <a href="javascript:" onclick="return refreshGraph('breadthfirst')">Breadthfirst</a><br>
@@ -71,23 +76,7 @@
         <div id="main_layout" style="height: 768px; width: 1200px; margin-left: 40px;">
             <div id="cy"></div>
         </div>
-        <div id="statistics">
+        <div id="statistics" style="margin-left: 30px;">
         </div>
     </body>
-    <script type="text/javascript">
-        var onClick = function() {
-            var data = {
-                name: $(graph_name)[0].value,
-                graph: this.graph
-            };
-            $.ajax("/save", {
-                type: 'POST',
-                data: JSON.stringify(data),
-                success: function() {
-                    console.log('Done');
-                },
-                contentType: 'application/json'
-            });
-        };
-    </script>
 </html>

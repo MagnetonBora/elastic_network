@@ -26,7 +26,7 @@ def restore_parents(root_id, tree_map):
         restore_parents(contact.id, tree_map)
 
 
-def traverse(root):
-    for contact in root.contacts:
-        traverse(contact)
-    print root
+def deserialize(root_id, tree):
+    tree_dict = create_index(tree)
+    restore_parents(root_id, tree_dict)
+    return tree_dict

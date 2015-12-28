@@ -9,10 +9,10 @@ var onstop = function() {
   console.log('Stop');
 };
 
-var simulate = function() {
+var simulate = function(profileSpreading) {
   var url = '/simulation';
   var data = {
-    spreading: false,
+    spreading: profileSpreading,
     graph: graph
   };
   $.ajax(url, {
@@ -27,13 +27,10 @@ var simulate = function() {
 };
 
 var showStatistics = function(statistics) {
+  clearStats();
+
   var stats = $("#statistics");
-
-  _.each(stats.children(), function(child) {
-    child.remove();
-  });
-
-  stats.append('<span>Statistics</span><br>');
+  stats.append('<span><strong>Statistics</strong></span><br>');
   stats.append('<span>Total requests number: ' + statistics.request_number + '</span><br>');
   stats.append('<span>Total replies number: ' + statistics.replies_number + '</span><br>');
 
@@ -42,7 +39,7 @@ var showStatistics = function(statistics) {
     stats.append('<span>' + vote.votes_amount + '%&#32;of&#32;votes</span><br>');
   });
 
-  stats.append('<br><span>Replies log:</span><br>');
+  stats.append('<br><span><strong>Replies log:</strong></span><br>');
   _.each(statistics.replies_log, function(reply) {
     stats.append('<span>' + reply + '</span><br>');
   });
@@ -160,4 +157,40 @@ var loadGraph = function(name) {
 var refreshGraph = function(layout) {
   console.log(layout);
   renderGraph(graph.nodes, graph.edges, graph.root, {name: layout});
+};
+
+var onClick = function() {
+    var data = {
+        name: $(graph_name)[0].value,
+        graph: this.graph
+    };
+    $.ajax("/save", {
+        type: 'POST',
+        data: JSON.stringify(data),
+        success: function() {
+            console.log('Done');
+        },
+        contentType: 'application/json'
+    });
+};
+
+var removeGraph = function(graphName) {
+    var data = {
+        name: graphName
+    };
+    $.ajax("/delete", {
+        type: 'POST',
+        data: JSON.stringify(data),
+        success: function() {
+          document.getElementById(graphName).remove();
+        },
+        contentType: 'application/json'
+    });
+};
+
+var clearStats = function() {
+  var stats = $("#statistics");
+  _.each(stats.children(), function(child) {
+    child.remove();
+  });
 };

@@ -4,9 +4,9 @@ import flask
 import logging
 
 from flask import request
+from contactstree import deserialize
 from config import SETTINGS, AGE_PARAMS, DEPTH
 from flask import render_template, url_for, Flask
-from tree import create_index, restore_parents, traverse
 from utils import ContactsManager, ContactsTree, SimulationManager, UserInfo, User
 
 
@@ -52,12 +52,11 @@ def simulation():
         data = flask.json.loads(request.data)
 
         root_id = data['graph']['root']['id']
-        tree_dict = create_index(data['graph'])
-
-        restore_parents(root_id, tree_dict)
+        tree_dict = deserialize(root_id, data['graph'])
 
         sender = tree_dict[root_id]
 
+        SETTINGS['use_profile_spreading'] = data['spreading']
         simulator = SimulationManager(sender=sender, settings=SETTINGS)
         simulator.start_simulation()
         statistics = simulator.statistics()
@@ -88,6 +87,15 @@ def save_graph():
     path = 'data/graphs/{}'.format(data['name'])
     with open(path, 'w') as f:
         f.write(flask.json.dumps(data['graph']))
+    return 'Ok'
+
+
+@app.route('/delete', methods=['POST'])
+def delete_graph():
+    data = flask.json.loads(request.data)
+    if 'name' in data:
+        path = 'data/graphs/{}'.format(data['name'])
+        os.remove(path)
     return 'Ok'
 
 
