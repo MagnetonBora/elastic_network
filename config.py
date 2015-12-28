@@ -13,7 +13,7 @@ SETTINGS = {
     "clasterization_factor": 1,
     "time_limit": 1000,
     "reply_prob": 1.0,
-    "forwarding_prob": 0.3,
+    "forwarding_prob": 1.0,
     "age_params": {
         "avg_age": 25,
         "age_dev": 10

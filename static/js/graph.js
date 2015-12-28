@@ -11,9 +11,13 @@ var onstop = function() {
 
 var simulate = function() {
   var url = '/simulation';
+  var data = {
+    spreading: false,
+    graph: graph
+  };
   $.ajax(url, {
     type: 'POST',
-    data: JSON.stringify(graph),
+    data: JSON.stringify(data),
     success: function(response) {
       console.log('Done', response);
       showStatistics(response.statistics);
@@ -44,47 +48,57 @@ var showStatistics = function(statistics) {
   });
 };
 
-var renderGraph = function(nodes, edges) {
+var renderGraph = function(nodes, edges, root, layout) {
+  var selectedNode = 'node[id = "' + root.id + '"]';  
+  var styles = [
+    {
+      selector: 'node',
+      style: {
+        'background-color': 'red',
+        'label': 'data(name)'
+      }
+    },
+    {
+      selector: 'edge',
+      style: {
+        'width': 3,
+        'line-color': 'green'
+      }
+    },
+    {
+      selector: selectedNode,
+      style: {
+        'background-color': 'blue'
+      }
+    }
+  ];
+  var layout = {
+    name: layout.name,
+    fit: true,
+    directed: true,
+    padding: 30,
+    circle: false,
+    spacingFactor: 1.0,
+    boundingBox: undefined,
+    avoidOverlap: true,
+    roots: undefined,
+    maximalAdjustments: 0,
+    animate: true,
+    animationDuration: 1000,
+    animationEasing: undefined,
+    ready: onready,
+    stop: onstop
+  };
+
   var cy = cytoscape({
     container: document.getElementById('cy'),
-      style: [
-        {
-          selector: 'node',
-          style: {
-            'background-color': 'red',
-            'label': 'data(name)'
-          }
-        },
-        {
-          selector: 'edge',
-          style: {
-            'width': 3,
-            'line-color': 'green'
-          }
-        }
-      ],
-      layout: {
-        name: 'breadthfirst',
-        fit: true,
-        directed: true,
-        padding: 30,
-        circle: false,
-        spacingFactor: 1.0,
-        boundingBox: undefined,
-        avoidOverlap: true,
-        roots: undefined,
-        maximalAdjustments: 0,
-        animate: true,
-        animationDuration: 1000,
-        animationEasing: undefined,
-        ready: onready,
-        stop: onstop
-      },
-      elements: {
-        nodes: nodes,
-        edges: edges
-      }
-    });
+    style: styles,
+    layout: layout,
+    elements: {
+      nodes: nodes,
+      edges: edges
+    }
+  });
 };
 
 var formatNodes = function(nodes) {
@@ -125,7 +139,7 @@ var generateGraph = function() {
       nodes: formatNodes(response.nodes),
       edges: formatEdges(response.edges)
     }
-    renderGraph(graph.nodes, graph.edges);
+    renderGraph(graph.nodes, graph.edges, graph.root, {name: 'cose-bilkent'});
   });
 };
 
@@ -139,6 +153,11 @@ var loadGraph = function(name) {
       nodes: response.nodes,
       edges: response.edges
     };
-    renderGraph(graph.nodes, graph.edges);
+    renderGraph(graph.nodes, graph.edges, graph.root, {name: 'cose-bilkent'});
   });
+};
+
+var refreshGraph = function(layout) {
+  console.log(layout);
+  renderGraph(graph.nodes, graph.edges, graph.root, {name: layout});
 };

@@ -1,4 +1,3 @@
-
 from utils import UserInfo, User
 
 
@@ -25,3 +24,9 @@ def restore_parents(root_id, tree_map):
     for contact in root.contacts:
         contact.parent = root
         restore_parents(contact.id, tree_map)
+
+
+def traverse(root):
+    for contact in root.contacts:
+        traverse(contact)
+    print root

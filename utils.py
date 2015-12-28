@@ -146,8 +146,8 @@ class ContactsTree(object):
         self.manager = ContactsManager()
 
     def _generate_tree(self, user, depth):
-        # count = randint(3, 5)
-        count = 2
+        count = randint(3, 5)
+        # count = 2
         user.contacts = self.manager.generate_contacts(self.config, count)
         if depth < 0:
             return

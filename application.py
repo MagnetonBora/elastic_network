@@ -6,9 +6,9 @@ import logging
 from flask import request
 from config import SETTINGS, AGE_PARAMS, DEPTH
 from flask import render_template, url_for, Flask
+from tree import create_index, restore_parents, traverse
 from utils import ContactsManager, ContactsTree, SimulationManager, UserInfo, User
 
-from tree import create_index, restore_parents
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -49,9 +49,10 @@ def tree():
 @app.route('/simulation', methods=['POST'])
 def simulation():
     with app.app_context():
-        tree = flask.json.loads(request.data)
-        tree_dict = create_index(tree)
-        root_id = tree['root']['id']
+        data = flask.json.loads(request.data)
+
+        root_id = data['graph']['root']['id']
+        tree_dict = create_index(data['graph'])
 
         restore_parents(root_id, tree_dict)
 
@@ -62,8 +63,6 @@ def simulation():
         statistics = simulator.statistics()
 
         response = dict(
-            nodes=tree['nodes'],
-            edges=tree['edges'],
             statistics=dict(
                 votes=statistics['info'],
                 replies_log=statistics['replies_log'],

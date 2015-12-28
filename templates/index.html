@@ -1,42 +1,76 @@
 <html>
-	<title>Elastic network</title>
-	<head></head>
+    <title>Elastic network</title>
+    <head>
+        <link rel="stylesheet" type="text/css" href="static/css/bootstrap/dist/css/bootstrap.css">
+    </head>
     <style>
       #cy {
         width: 100%;
         height: 100%;
         left: 30;
-        top: 30;
+        top: 60;
         z-index: 999;
+        margin-top: 60px;
       };
       #statistics {
         float: left;
       };
     </style>
     <script type="text/javascript" src="static/js/jquery.min.js"></script>
-	<script type="text/javascript" src="static/js/script/cytoscape.min.js"></script>
-	<script type="text/javascript" src="static/js/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="static/js/script/cytoscape.min.js"></script>
+    <script type="text/javascript" src="static/js/underscore/underscore-min.js"></script>
     <script type="text/javascript" src="static/js/graph.js"></script>
+    <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-cose-bilkent/1.0.2/cytoscape-cose-bilkent.js"></script>
+    <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-spread/1.0.4/cytoscape-spread.js"></script>
     <body>
         <div id="menu">
-            <a href="javascript:" onclick="return generateGraph()">Generate contacts tree</a><br>
-            <a href="javascript:" onclick="return simulate()">Simulation with profile spreading</a><br>
-            <a href="javascript:">Simulation without profile spreading</a><br>
-            <a href="javascript:" onclick="return onClick()">Save graph as </a>
-            <input id="graph_name" type='text' /><br>
-            
-            <!-- List of all available graphs -->
-            {% if graphs %}
-                <strong>You have the following graphs:</strong><br>
-                {% for graph in graphs %}
-                    <li><a href="javascript:" onclick="return loadGraph('{{graph|safe}}')">{{ graph }}</a></li>
-                {% endfor %}
-            {% endif %}            
+
+            <div id="items" style="margin-left: 20px; width: 300px; height: 200px; float: left;">
+                <ul class="nav nav-pills nav-stacked">
+                  <li role="presentation" style="width: 300px;">
+                      <a href="javascript:" onclick="return generateGraph()">Generate contacts tree</a>
+                  </li>
+                  <li role="presentation" style="width: 300px;">
+                      <a href="javascript:" onclick="return simulate()">Simulation with profile spreading</a>
+                  </li>
+                  <li role="presentation" style="width: 300px;">
+                      <a href="javascript:">Simulation without profile spreading</a>
+                  </li>
+                </ul>
+            </div>
+
+            <div id="graph_menu" style="height: 200px; width: 400px; margin-left: 20px; margin-top: 5px; float: left;">
+                <!-- List of all available graphs -->
+                {% if graphs %}
+                    <ul id="graph_list_container">
+                    <strong>You have the following graphs:</strong><br>
+                    {% for graph in graphs %}
+                        <li style="margin-left: 10px;">
+                            <a href="javascript:" onclick="return loadGraph('{{graph|safe}}')">{{ graph }}</a>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+                <div class="col-lg-4" style="margin-top: 10px;">
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" onclick="onClick()">Save</button>
+                        </span>
+                        <input id="graph_name" style="width: 320px" type="text" class="form-control" placeholder="Contacts tree" aria-describedby="basic-addon1">
+                    </div>
+                </div>
+            </div>
+
+            <div id='layouts' style="height: 20px; margin-top: 10px;">
+                <a href="javascript:" onclick="return refreshGraph('spread')">Spread</a><br>
+                <a href="javascript:" onclick="return refreshGraph('cose-bilkent')">Cose-bilkent</a><br>
+                <a href="javascript:" onclick="return refreshGraph('breadthfirst')">Breadthfirst</a><br>
+            </div>
 
         </div>
-    	<div id="main_layout">
-    		<div id="cy"></div>
-    	</div>
+        <div id="main_layout" style="height: 768px; width: 1200px; margin-left: 40px;">
+            <div id="cy"></div>
+        </div>
         <div id="statistics">
         </div>
     </body>
