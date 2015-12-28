@@ -66,7 +66,7 @@ def simulation():
                 votes=statistics['info'],
                 replies_log=statistics['replies_log'],
                 replies_number=statistics['replies_number'],
-                request_number=simulator.average_request_number()
+                request_number=simulator.average_request_number()-1
             )
         )
         return flask.jsonify(response)
@@ -84,9 +84,14 @@ def generate_tree():
 @app.route('/save', methods=['POST'])
 def save_graph():
     data = flask.json.loads(request.data)
+    if 'name' not in data or 'graph' not in data:
+        return 'Ooops'
     path = 'data/graphs/{}'.format(data['name'])
     with open(path, 'w') as f:
-        f.write(flask.json.dumps(data['graph']))
+        try:
+            f.write(flask.json.dumps(data['graph']))
+        except Exception as e:
+            print e
     return 'Ok'
 
 
@@ -95,7 +100,10 @@ def delete_graph():
     data = flask.json.loads(request.data)
     if 'name' in data:
         path = 'data/graphs/{}'.format(data['name'])
-        os.remove(path)
+        try:
+            os.remove(path)
+        except Exception as e:
+            print e
     return 'Ok'
 
 
@@ -116,4 +124,4 @@ def _create_folder_structure():
 
 if __name__ == '__main__':
     _create_folder_structure()
-    app.run(debug=True)
+    app.run()

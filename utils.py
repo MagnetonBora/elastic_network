@@ -147,7 +147,6 @@ class ContactsTree(object):
 
     def _generate_tree(self, user, depth):
         count = randint(3, 5)
-        # count = 2
         user.contacts = self.manager.generate_contacts(self.config, count)
         if depth < 0:
             return
@@ -174,14 +173,6 @@ class SimulationManager(object):
         self._sender = sender
         self._avg_request_number = 0
         self._use_profile_spreading = settings.get('use_profile_spreading', False)
-
-    @staticmethod
-    def serialize():
-        pass
-
-    @staticmethod
-    def deserialize(tree_dict):
-        pass
 
     def _traverse(self, root, users):
         contacts = [c.to_dict() for c in root.contacts]
@@ -216,9 +207,13 @@ class SimulationManager(object):
         return self._avg_request_number
 
     def start_simulation(self):
-        logger.info('STARTING DISCRETE TIME SIMULATION')
+        start_header = 'STARTING DISCRETE TIME SIMULATION'
+        end_header = 'DISCRETE TIME SIMULATION HAS BEEN FINISHED' 
+        self._replies_log.append(start_header)
+        logger.info(start_header)
         self._invoke(self._sender, 1)
-        logger.info('DISCRETE TIME SIMULATION HAS BEEN FINISHED')
+        self._replies_log.append(end_header)
+        logger.info(end_header)
 
     def _invoke(self, user, depth):
         self._current_time += random.gauss(1, 0.1)
@@ -233,6 +228,7 @@ class SimulationManager(object):
 
         reply = -math.log(random.random() + 0.0001)/user.user_info.age
         if reply < self._settings['reply_prob']:
+            self._avg_request_number += 1
             answer = user.answer(self._answers)
             tmpl = 'User {} id={} replies to {} answer {}'
             if user.parent is not None:
@@ -240,13 +236,13 @@ class SimulationManager(object):
                 logger.info(info)
                 self._replies_log.append(info)
                 user.parent.replies.append(answer)
-                logger.info(
-                    'Piggybacking! User {} found out that {} is {} years old'.format(
-                        user.user_info.name,
-                        user.parent.user_info.name,
-                        int(user.user_info.age)
-                    )
+                log_message = 'Piggybacking! User {} found out that {} is {} years old'.format(
+                    user.user_info.name,
+                    user.parent.user_info.name,
+                    int(user.user_info.age)
                 )
+                logger.info(log_message)
+                self._replies_log.append(log_message)
 
         for contact in user.contacts:
             if self._use_profile_spreading and contact.user_info.age > user.user_info.age:
@@ -255,12 +251,12 @@ class SimulationManager(object):
             # forward = -math.log(random.random() + 0.0001)/contact.user_info.age
             if forward < self._settings['forwarding_prob']:
                 self._avg_request_number += 1
-                logger.info(
-                    'User {} forwards message to {}'.format(
-                        user.user_info.name,
-                        contact.user_info.name
-                    )
+                forward_log = 'User {} forwards message to {}'.format(
+                    user.user_info.name,
+                    contact.user_info.name
                 )
+                logger.info(forward_log)
+                self._replies_log.append(forward_log)
                 self._invoke(contact, depth+1)
 
         if user.parent is not None:

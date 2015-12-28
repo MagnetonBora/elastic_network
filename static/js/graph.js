@@ -159,19 +159,22 @@ var refreshGraph = function(layout) {
   renderGraph(graph.nodes, graph.edges, graph.root, {name: layout});
 };
 
-var onClick = function() {
-    var data = {
-        name: $(graph_name)[0].value,
-        graph: this.graph
-    };
-    $.ajax("/save", {
-        type: 'POST',
-        data: JSON.stringify(data),
-        success: function() {
-            console.log('Done');
-        },
-        contentType: 'application/json'
-    });
+var saveGraph = function() {
+  if (!$(graph_name)[0].value) {
+    return;
+  };
+  var data = {
+    name: $(graph_name)[0].value,
+    graph: this.graph
+  };
+  $.ajax("/save", {
+    type: 'POST',
+    data: JSON.stringify(data),
+    success: function() {
+      console.log('Done');
+    },
+    contentType: 'application/json'
+  });
 };
 
 var removeGraph = function(graphName) {
