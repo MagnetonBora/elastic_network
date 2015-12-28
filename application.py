@@ -8,6 +8,8 @@ from config import SETTINGS, AGE_PARAMS, DEPTH
 from flask import render_template, url_for, Flask
 from utils import ContactsManager, ContactsTree, SimulationManager, UserInfo, User
 
+from tree import create_index, restore_parents
+
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 logger.setLevel(logging.INFO)
@@ -22,8 +24,8 @@ def dump_contacts(users):
 def make_edges(userslist):
     edges = []
     for user in userslist:
-        parent_id = user['uid']
-        edges += [(parent_id, c['uid']) for c in user['contacts']]
+        parent_id = user['id']
+        edges += [(parent_id, c['id']) for c in user['contacts']]
     return edges
 
 
@@ -47,31 +49,29 @@ def tree():
 @app.route('/simulation', methods=['POST'])
 def simulation():
     with app.app_context():
-        # graph = flask.json.loads(request.data)
-        # sender_data = graph['root']
-        # uid = sender_data['uid']
-        # sender_data.pop('uid')
-        # user_info = UserInfo(**sender_data)
-        # sender = User(user_info, uid)
+        tree = flask.json.loads(request.data)
+        tree_dict = create_index(tree)
+        root_id = tree['root']['id']
 
-        # simulator = SimulationManager(sender=sender, settings=SETTINGS)
-        # simulator.start_simulation()
+        restore_parents(root_id, tree_dict)
 
-        # statistics = simulator.statistics()
-        # response = dict(
-        #     nodes=graph['nodes'],
-        #     edges=graph['edges'],
-        #     statistics=dict(
-        #         votes=statistics['info'],
-        #         replies_log=statistics['replies_log'],
-        #         replies_number=statistics['replies_number'],
-        #         request_number=simulator.average_request_number()
-        #     )
-        # )
+        sender = tree_dict[root_id]
 
-        # return flask.jsonify(response)
+        simulator = SimulationManager(sender=sender, settings=SETTINGS)
+        simulator.start_simulation()
+        statistics = simulator.statistics()
 
-        return 'Ok'
+        response = dict(
+            nodes=tree['nodes'],
+            edges=tree['edges'],
+            statistics=dict(
+                votes=statistics['info'],
+                replies_log=statistics['replies_log'],
+                replies_number=statistics['replies_number'],
+                request_number=simulator.average_request_number()
+            )
+        )
+        return flask.jsonify(response)
 
 
 @app.route('/generate-tree')

@@ -14,26 +14,33 @@ var simulate = function() {
   $.ajax(url, {
     type: 'POST',
     data: JSON.stringify(graph),
-    success: function() {
-      console.log('Done');
+    success: function(response) {
+      console.log('Done', response);
+      showStatistics(response.statistics);
     },
     contentType: 'application/json'
   });
 };
 
 var showStatistics = function(statistics) {
-  $("#statistics").append('<span>Statistics</span><br>');    
-  $("#statistics").append('<span>Total requests number: ' + statistics.request_number + '</span><br>');
-  $("#statistics").append('<span>Total replies number: ' + statistics.replies_number + '</span><br>');
+  var stats = $("#statistics");
 
-  _.each(statistics.votes, function(vote) {
-    $("#statistics").append('<span>' + vote.voted_item + '&#32;gots&#32;</span>');
-    $("#statistics").append('<span>' + vote.votes_amount + '%&#32;of&#32;votes</span><br>');
+  _.each(stats.children(), function(child) {
+    child.remove();
   });
 
-  $("#statistics").append('<br><span>Replies log:</span><br>');
+  stats.append('<span>Statistics</span><br>');
+  stats.append('<span>Total requests number: ' + statistics.request_number + '</span><br>');
+  stats.append('<span>Total replies number: ' + statistics.replies_number + '</span><br>');
+
+  _.each(statistics.votes, function(vote) {
+    stats.append('<span>' + vote.voted_item + '&#32;gots&#32;</span>');
+    stats.append('<span>' + vote.votes_amount + '%&#32;of&#32;votes</span><br>');
+  });
+
+  stats.append('<br><span>Replies log:</span><br>');
   _.each(statistics.replies_log, function(reply) {
-    $("#statistics").append('<span>' + reply + '</span><br>');
+    stats.append('<span>' + reply + '</span><br>');
   });
 };
 
@@ -85,7 +92,7 @@ var formatNodes = function(nodes) {
   _.each(nodes, function(node) {
     formatted_items.push({
       data: {
-        id: node.uid,
+        id: node.id,
         name: node.name,
         gender: node.gender,
         age: node.age,

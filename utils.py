@@ -12,8 +12,8 @@ logger.setLevel(logging.INFO)
 
 class User(object):
 
-    def __init__(self, user_info, uid=None, contacts=None):
-        self._uid = self._generate_uid(8) if uid is None else uid
+    def __init__(self, user_info, contacts=None):
+        self._id = self._generate_id(8) if user_info.id is None else user_info.id
         self._contacts = [] if contacts is None else contacts
         self._user_info = user_info
         self._replies = []
@@ -21,33 +21,29 @@ class User(object):
         self._demand_replies = 0
         self._parent = None
 
-    def _generate_uid(self, length):
+    def _generate_id(self, length):
         symbols = [choice(string.ascii_letters + string.digits) for i in xrange(length)]
         return string.join(symbols, '')
+
+    @property
+    def contacts(self):
+        return self._contacts
 
     @property
     def user_info(self):
         return self._user_info
 
     @property
-    def uid(self):
-        return self._uid
+    def id(self):
+        return self._id
 
     @property
     def replies(self):
         return self._replies
 
-    @property
-    def contacts(self):
-        return self._contacts
-
     @contacts.setter
-    def contacts(self, contacts_collection):
-        if len(self._contacts) == 0:
-            self._contacts = contacts_collection
-        else:
-            for contact in contacts_collection:
-                self._contacts.append(contact)
+    def contacts(self, contacts_list):
+        self._contacts = contacts_list
 
     @property
     def parent(self):
@@ -71,23 +67,21 @@ class User(object):
                 self.add_contact(contact)
 
     def __repr__(self):
-        return "Name: {name}, id: {id}".format(
-            name=self._user_info.name,
-            id=self._uid
-        )
+        return "Name: {}, id: {}".format(self._user_info.name, self._id)
 
     def to_dict(self):
         info = self._user_info.to_dict()
-        info.update(dict(uid=self._uid))
+        info.update(dict(id=self._id))
         return info
 
 
 class UserInfo(object):
 
-    def __init__(self, name, age, gender):
+    def __init__(self, name, age, gender, id):
         self.name = name
         self.age = age
         self.gender = gender
+        self.id = id
 
     def __repr__(self):
         return 'User: {}, age: {}, gender: {}'.format(self.name, self.age, self.gender)
@@ -104,6 +98,10 @@ class ContactsManager(object):
     def __init__(self):
         self.male = self._read_names(self.FILE_PATH_MALE)
         self.female = self._read_names(self.FILE_PATH_FEMALE)
+
+    def _generate_id(self, length):
+        symbols = [choice(string.ascii_letters + string.digits) for i in xrange(length)]
+        return string.join(symbols, '')
 
     def _read_names(self, file_path):
         with open(file_path, 'r') as input_file:
@@ -129,6 +127,7 @@ class ContactsManager(object):
         avg_age = config['avg_age']
         avg_dev = config['age_dev']
         user_info = dict(
+            id=self._generate_id(8),
             age=self._generate_age(avg_age, avg_dev),
             gender=choice(self.genders)
         )
@@ -188,7 +187,7 @@ class SimulationManager(object):
         contacts = [c.to_dict() for c in root.contacts]
 
         item = dict(
-            uid=root.uid,
+            id=root.id,
             name=root.user_info.name,
             age=root.user_info.age,
             gender=root.user_info.gender,
@@ -237,7 +236,7 @@ class SimulationManager(object):
             answer = user.answer(self._answers)
             tmpl = 'User {} id={} replies to {} answer {}'
             if user.parent is not None:
-                info = tmpl.format(user.user_info.name, user.uid, user.parent.user_info.name, answer)
+                info = tmpl.format(user.user_info.name, user.id, user.parent.user_info.name, answer)
                 logger.info(info)
                 self._replies_log.append(info)
                 user.parent.replies.append(answer)
