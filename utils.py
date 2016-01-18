@@ -226,6 +226,21 @@ class SimulationManager(object):
         if depth > self._max_depth:
             return
 
+        for contact in user.contacts:
+            if self._use_profile_spreading and contact.user_info.age > user.user_info.age:
+                continue
+            forward = random.random()
+            # forward = -math.log(random.random() + 0.0001)/contact.user_info.age
+            if forward < self._settings['forwarding_prob']:
+                self._avg_request_number += 1
+                forward_log = 'User {} forwards message to {}'.format(
+                    user.user_info.name,
+                    contact.user_info.name
+                )
+                logger.info(forward_log)
+                self._replies_log.append(forward_log)
+                self._invoke(contact, depth+1)
+
         reply = -math.log(random.random() + 0.0001)/user.user_info.age
         if reply < self._settings['reply_prob']:
             self._avg_request_number += 1
@@ -243,21 +258,6 @@ class SimulationManager(object):
                 )
                 logger.info(log_message)
                 self._replies_log.append(log_message)
-
-        for contact in user.contacts:
-            if self._use_profile_spreading and contact.user_info.age > user.user_info.age:
-                continue
-            forward = random.random()
-            # forward = -math.log(random.random() + 0.0001)/contact.user_info.age
-            if forward < self._settings['forwarding_prob']:
-                self._avg_request_number += 1
-                forward_log = 'User {} forwards message to {}'.format(
-                    user.user_info.name,
-                    contact.user_info.name
-                )
-                logger.info(forward_log)
-                self._replies_log.append(forward_log)
-                self._invoke(contact, depth+1)
 
         if user.parent is not None:
             for item in user.replies:
