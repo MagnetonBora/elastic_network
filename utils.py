@@ -225,7 +225,7 @@ class SimulationManager(object):
         logger.info(end_header)
 
     def _invoke(self, user, depth):
-        self._current_time += random.gauss(1, 0.1)
+        self._current_time += random.gauss(10, 2)
 
         if self._current_time > self._time_limit:
             return
@@ -241,7 +241,7 @@ class SimulationManager(object):
             forward = random.random()
 
             if forward < self._settings['forwarding_prob']:
-                self._current_time += random.gauss(1, 0.1)
+                self._current_time += random.gauss(10, 2)
                 self._avg_request_number += 1
                 self._forwards_number += 1
                 self._replies_log.append(
@@ -261,7 +261,7 @@ class SimulationManager(object):
         reply = -math.log(random.random() + 0.0001)/user.user_info.age
         if reply < self._settings['reply_prob']:
             self._avg_request_number += 1
-            self._current_time += random.gauss(1, 0.1)
+            self._current_time += random.gauss(10, 2)
             answer = user.answer(self._answers)
             tmpl = 'Time {} user {} replies to {} answer {}'
             if user.parent is not None:
@@ -274,6 +274,7 @@ class SimulationManager(object):
                 logger.info(info)
                 self._replies_log.append(info)
                 user.parent.replies.append(answer)
+                self._current_time += random.randint(20, 30)
                 log_message = 'Piggybacking! User {} found out that {} is {} years old'.format(
                     user.user_info.name,
                     user.parent.user_info.name,
