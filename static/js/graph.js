@@ -30,19 +30,22 @@ var showStatistics = function(statistics) {
   clearStats();
 
   var stats = $("#statistics");
-  stats.append('<span><strong>Statistics</strong></span><br>');
-  stats.append('<span>Total requests number: ' + statistics.request_number + '</span><br>');
-  stats.append('<span>Total replies number: ' + statistics.replies_number + '</span><br>');
 
+  stats.append('<span><strong>Simulation Log</strong></span><br>');
+  _.each(statistics.replies_log, function(reply) {
+    stats.append('<span>' + reply + '</span><br>');
+  });
+
+  stats.append('<br><span><strong>Statistics</strong></span><br>');
   _.each(statistics.votes, function(vote) {
     stats.append('<span>' + vote.voted_item + '&#32;gots&#32;</span>');
     stats.append('<span>' + vote.votes_amount + '%&#32;of&#32;votes</span><br>');
   });
 
-  stats.append('<br><span><strong>Replies log:</strong></span><br>');
-  _.each(statistics.replies_log, function(reply) {
-    stats.append('<span>' + reply + '</span><br>');
-  });
+  stats.append('<br>');
+  stats.append('<span><strong>Total number of sms:</strong> ' + statistics.request_number + '</span><br>');
+  stats.append('<span><strong>Total number of replies:</strong> ' + statistics.replies_number + '</span><br>');
+  stats.append('<span><strong>Total number of forwards:</strong> ' + statistics.forwards_number + '</span><br><br>');
 };
 
 var renderGraph = function(nodes, edges, root, layout) {

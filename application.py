@@ -66,6 +66,7 @@ def simulation():
                 votes=statistics['info'],
                 replies_log=statistics['replies_log'],
                 replies_number=statistics['replies_number'],
+                forwards_number=statistics['forwards_number'],
                 request_number=simulator.average_request_number()-1
             )
         )

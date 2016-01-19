@@ -165,6 +165,7 @@ class SimulationManager(object):
     def __init__(self, sender, settings):
         self._replies_log = []
         self._current_time = 0
+        self._forwards_number = 0
         self._settings = settings
         self._question = settings['question']
         self._answers = settings['answers']
@@ -201,7 +202,15 @@ class SimulationManager(object):
             {'voted_item': k, 'votes_amount': math.floor(100.0*v/total_answers)}
             for k, v in stats.iteritems()
         ]
-        return {'replies_number': len(replies), 'info': stats_relative, 'replies_log': self._replies_log}
+
+        results = dict(
+            info=stats_relative,
+            replies_number=len(replies), 
+            replies_log=self._replies_log,
+            forwards_number=self._forwards_number
+        )
+
+        return results
 
     def average_request_number(self):
         return self._avg_request_number
@@ -218,8 +227,6 @@ class SimulationManager(object):
     def _invoke(self, user, depth):
         self._current_time += random.gauss(1, 0.1)
 
-        logger.info('Current time: {}'.format(self._current_time))
-
         if self._current_time > self._time_limit:
             return
 
@@ -227,13 +234,21 @@ class SimulationManager(object):
             return
 
         for contact in user.contacts:
+
             if self._use_profile_spreading and contact.user_info.age > user.user_info.age:
                 continue
+
             forward = random.random()
-            # forward = -math.log(random.random() + 0.0001)/contact.user_info.age
+
             if forward < self._settings['forwarding_prob']:
                 self._current_time += random.gauss(1, 0.1)
                 self._avg_request_number += 1
+                self._forwards_number += 1
+                self._replies_log.append(
+                    'Number of replies requested by {} is {} of replies'.format(
+                        user.user_info.name, random.randint(1, 4*len(user.contacts))
+                    )
+                )
                 forward_log = 'Time: {} user {} forwards message to {}'.format(
                     self._current_time,
                     user.user_info.name,
@@ -248,9 +263,14 @@ class SimulationManager(object):
             self._avg_request_number += 1
             self._current_time += random.gauss(1, 0.1)
             answer = user.answer(self._answers)
-            tmpl = 'Time {} user {} id={} replies to {} answer {}'
+            tmpl = 'Time {} user {} replies to {} answer {}'
             if user.parent is not None:
-                info = tmpl.format(self._current_time, user.user_info.name, user.id, user.parent.user_info.name, answer)
+                info = tmpl.format(
+                    self._current_time,
+                    user.user_info.name,
+                    user.parent.user_info.name,
+                    answer
+                )
                 logger.info(info)
                 self._replies_log.append(info)
                 user.parent.replies.append(answer)
