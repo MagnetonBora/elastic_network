@@ -232,8 +232,10 @@ class SimulationManager(object):
             forward = random.random()
             # forward = -math.log(random.random() + 0.0001)/contact.user_info.age
             if forward < self._settings['forwarding_prob']:
+                self._current_time += random.gauss(1, 0.1)
                 self._avg_request_number += 1
-                forward_log = 'User {} forwards message to {}'.format(
+                forward_log = 'Time: {} user {} forwards message to {}'.format(
+                    self._current_time,
                     user.user_info.name,
                     contact.user_info.name
                 )
@@ -244,10 +246,11 @@ class SimulationManager(object):
         reply = -math.log(random.random() + 0.0001)/user.user_info.age
         if reply < self._settings['reply_prob']:
             self._avg_request_number += 1
+            self._current_time += random.gauss(1, 0.1)
             answer = user.answer(self._answers)
-            tmpl = 'User {} id={} replies to {} answer {}'
+            tmpl = 'Time {} user {} id={} replies to {} answer {}'
             if user.parent is not None:
-                info = tmpl.format(user.user_info.name, user.id, user.parent.user_info.name, answer)
+                info = tmpl.format(self._current_time, user.user_info.name, user.id, user.parent.user_info.name, answer)
                 logger.info(info)
                 self._replies_log.append(info)
                 user.parent.replies.append(answer)
