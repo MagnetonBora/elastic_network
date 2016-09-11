@@ -11,9 +11,23 @@ var onstop = function() {
 
 var simulate = function(profileSpreading) {
   var url = '/simulation';
+  var params = {
+    max_hops: document.getElementById('max_hops').value,
+    time_limit: document.getElementById('time_limit').value,
+    ttl: document.getElementById('ttl').value,
+    reply_probility: document.getElementById('reply_probility').value,
+    forwarding_probility: document.getElementById('forwarding_probility').value,
+    average_age: document.getElementById('average_age').value,
+    standard_deviation: document.getElementById('standard_deviation').value,
+    clasterization_factor: document.getElementById('clasterization_factor').value,
+    transition_time: document.getElementById('transition_time').value,
+    receiving_time: document.getElementById('receiving_time').value,
+    time_step: document.getElementById('time_step').value
+  };
   var data = {
     spreading: profileSpreading,
-    graph: graph
+    graph: graph,
+    params: params,
   };
   $.ajax(url, {
     type: 'POST',
