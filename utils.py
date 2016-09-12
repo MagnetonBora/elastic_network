@@ -245,13 +245,14 @@ class SimulationManager(object):
             if self._use_profile_spreading and contact.user_info.age > user.user_info.age:
                 continue
             forward = random.random()
-            # forward = -math.log(random.random() + 0.0001)/contact.user_info.age
+            replies = random.randint(1, 10)
             if forward < self._settings['forwarding_prob']:
                 self._avg_request_number += 1
-                forward_log = '{:4.2f}s {} ==> {} (requested number of replies: 7)'.format(
+                forward_log = '{:4.2f}s {} ==> {} (requested number of replies: {})'.format(
                     self._current_time,
                     user.user_info.name,
-                    contact.user_info.name
+                    contact.user_info.name,
+                    replies
                 )
                 logger.info(forward_log)
                 self._replies_log.append(forward_log)
