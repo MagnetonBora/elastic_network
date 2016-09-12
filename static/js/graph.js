@@ -35,8 +35,16 @@ var simulate = function(profileSpreading) {
     success: function(response) {
       console.log('Done', response);
       showStatistics(response.statistics);
+      showAges(graph.nodes);
     },
     contentType: 'application/json'
+  });
+};
+
+var showAges = function(nodes) {
+  var ages_table = $("#user_ages_table");
+  _.each(nodes, function(node) {
+    ages_table.append('<span>' + node.data.name + ': ' + node.data.age + '<span><br>');
   });
 };
 
