@@ -40,8 +40,8 @@ var simulate = function(profileSpreading) {
       showAges(graph.nodes);
       showPlots();
       showVotes(response.statistics.votes);
-      showRepliesPerRequest(null);
-      showAggregatedResponsesPerReply(null);
+      showRepliesPerRequest(response.replies_stats);
+      showAggregatedResponsesPerReply(response.replies_stats);
     },
     contentType: 'application/json'
   });
@@ -50,25 +50,20 @@ var simulate = function(profileSpreading) {
 var showRepliesPerRequest = function(data) {
   var requested_replies = $("#requested_replies");
   requested_replies.append("<strong>Replies per request</strong><br>");
-  // <span>Carrie Bass: 1</span><br>
-  // <span>Eric Griffin: 1</span><br>
-  // <span>Jeremy White: 1</span><br>
-  // <span>Katherine Mcdaniel: 1</span><br>
-  // <span>Patty Rodriquez: 1</span><br>
-  // <span>Samuel Cox: 1</span><br>
-  // <span>Tanya Mckenzie: 1</span><br>
+  for(var i=0; i < data.length; i++) {
+    requested_replies.append("<span>" + data[i].user + ": " + data[i].requested_replies + "</span><br>");
+  };
 };
 
 var showAggregatedResponsesPerReply = function(data) {
   var aggregated_responses_per_reply = $("#aggregated_responses_per_reply");
   aggregated_responses_per_reply.append("<strong>Aggregated responses per reply</strong><br>");
-  // <span>Carrie Bass: replies 1, aggregated responses 2<span><br>
-  // <span>Eric Griffin: replies 2, aggregated responses 4<span><br>
-  // <span>Jeremy White: replies 1, aggregated responses 0<span><br>
-  // <span>Katherine Mcdaniel: replies 1, aggregated responses 2<span><br>
-  // <span>Patty Rodriquez: replies 1, aggregated responses 0<span><br>
-  // <span>Samuel Cox: replies 1, aggregated responses 0<span><br>
-  // <span>Tanya Mckenzie: replies 1, aggregated responses 0<span><br>
+  for(var i=0; i < data.length; i++) {
+    aggregated_responses_per_reply.append(
+      "<span>" + data[i].user + ": " + "replies " + data[i].requested_replies + ", " +
+      "aggregated responses " + data[i].aggregated_responses + "</span><br>"
+    );
+  };
 };
 
 var showVotes = function(results) {

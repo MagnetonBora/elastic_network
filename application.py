@@ -65,7 +65,14 @@ def simulation():
                 replies_log=statistics['replies_log'],
                 replies_number=statistics['replies_number'],
                 request_number=simulator.average_request_number()-1
-            )
+            ),
+            replies_stats=[
+                {
+                    'user': 'John',
+                    'requested_replies': 42,
+                    'aggregated_responses': 42
+                }
+            ]
         )
         return flask.jsonify(response)
 
