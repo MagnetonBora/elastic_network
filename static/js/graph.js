@@ -12,17 +12,19 @@ var onstop = function() {
 var simulate = function(profileSpreading) {
   var url = '/simulation';
   var params = {
-    max_hops: document.getElementById('max_hops').value,
-    time_limit: document.getElementById('time_limit').value,
-    ttl: document.getElementById('ttl').value,
-    reply_probility: document.getElementById('reply_probility').value,
-    forwarding_probility: document.getElementById('forwarding_probility').value,
-    average_age: document.getElementById('average_age').value,
-    standard_deviation: document.getElementById('standard_deviation').value,
-    clasterization_factor: document.getElementById('clasterization_factor').value,
-    transition_time: document.getElementById('transition_time').value,
-    receiving_time: document.getElementById('receiving_time').value,
-    time_step: document.getElementById('time_step').value
+    max_hops: parseInt(document.getElementById('max_hops').value),
+    time_limit: parseInt(document.getElementById('time_limit').value),
+    ttl: parseInt(document.getElementById('ttl').value),
+    reply_prob: parseFloat(document.getElementById('reply_probility').value),
+    forwarding_prob: parseFloat(document.getElementById('forwarding_probility').value),
+    avg_age: parseFloat(document.getElementById('average_age').value),
+    age_dev: parseFloat(document.getElementById('standard_deviation').value),
+    clasterization_factor: parseFloat(document.getElementById('clasterization_factor').value),
+    transition_time: parseFloat(document.getElementById('transition_time').value),
+    receiving_time: parseFloat(document.getElementById('receiving_time').value),
+    time_step: parseFloat(document.getElementById('time_step').value),
+    question: "What are the best movie?",
+    answers: ["A Beautiful mind", "Terminator", "Matrix"],
   };
   var data = {
     spreading: profileSpreading,

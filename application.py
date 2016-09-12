@@ -50,17 +50,15 @@ def tree():
 def simulation():
     with app.app_context():
         data = flask.json.loads(request.data)
-
         root_id = data['graph']['root']['id']
         tree_dict = deserialize(root_id, data['graph'])
-
         sender = tree_dict[root_id]
-
-        SETTINGS['use_profile_spreading'] = data['spreading']
-        simulator = SimulationManager(sender=sender, settings=SETTINGS)
+        settings = {}
+        settings.update(data['params'])
+        settings.update(use_profile_spreading=data['spreading'])
+        simulator = SimulationManager(sender=sender, settings=settings)
         simulator.start_simulation()
         statistics = simulator.statistics()
-
         response = dict(
             statistics=dict(
                 votes=statistics['info'],
