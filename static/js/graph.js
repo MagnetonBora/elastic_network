@@ -289,4 +289,16 @@ var clearStats = function() {
   _.each(plots.children(), function(child) {
     child.remove();
   });
+  var aggregated_responses_per_reply = $("#aggregated_responses_per_reply");
+  _.each(aggregated_responses_per_reply.children(), function(child) {
+    child.remove();
+  });
+  var requested_replies = $("#requested_replies");
+  _.each(requested_replies.children(), function(child) {
+    child.remove();
+  });
+  var votes = $("#votes");
+  _.each(votes.children(), function(child) {
+    child.remove();
+  });
 };
