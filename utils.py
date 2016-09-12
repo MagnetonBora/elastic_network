@@ -173,7 +173,8 @@ class SimulationManager(object):
         self._sender = sender
         self._avg_request_number = 0
         self._use_profile_spreading = settings.get('use_profile_spreading', False)
-        self._time_step = 0.2
+        self._time_step = settings['time_step']
+        self._replies_stats = {}
 
     def _traverse(self, root, users):
         contacts = [c.to_dict() for c in root.contacts]
@@ -202,7 +203,21 @@ class SimulationManager(object):
             {'voted_item': k, 'votes_amount': math.floor(100.0*v/total_answers)}
             for k, v in stats.iteritems()
         ]
-        return {'replies_number': len(replies), 'info': stats_relative, 'replies_log': self._replies_log}
+        replies_stats = [
+            {
+                'user': user,
+                'requested_replies': data['requested_replies'],
+                'aggregated_responses': data['aggregated_responses']
+            }
+            for user, data in self._replies_stats.iteritems()
+        ]
+        result = {
+            'replies_number': len(replies),
+            'info': stats_relative,
+            'replies_log': self._replies_log,
+            'replies_stats': replies_stats
+        }
+        return result
 
     def average_request_number(self):
         return self._avg_request_number
@@ -217,11 +232,11 @@ class SimulationManager(object):
         logger.info(end_header)
 
     def _increase_time(self):
-        self._current_time = self._current_time + self._time_step + random.gauss(1, 0.1)
+        self._current_time = self._current_time + self._time_step
 
     def _invoke(self, user, depth):
+        user_name = user.user_info.name
         self._increase_time()
-
         logger.info('Current time: {}'.format(self._current_time))
 
         if self._current_time > self._time_limit:
@@ -241,6 +256,9 @@ class SimulationManager(object):
                 self._replies_log.append(info)
                 user.parent.replies.append(answer)
 
+        if user_name not in self._replies_stats:
+            self._replies_stats[user_name] = dict(requested_replies=1, aggregated_responses=0)
+
         for contact in user.contacts:
             if self._use_profile_spreading and contact.user_info.age > user.user_info.age:
                 continue
@@ -258,6 +276,7 @@ class SimulationManager(object):
                 self._replies_log.append(forward_log)
                 self._invoke(contact, depth+1)
 
+        self._replies_stats[user_name]['aggregated_responses'] += 1
         if user.parent is not None:
             for item in user.replies:
                 user.parent.replies.append(item)
