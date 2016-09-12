@@ -25,7 +25,7 @@
     <body>
         <div id="menu">
 
-            <div id="items" style="margin-left: 20px; width: 300px; height: 200px; float: left;">
+            <div id="items" style="margin-left: 20px; width: 300px; height: 330px; float: left;">
                 <ul class="nav nav-pills nav-stacked">
                   <li role="presentation" style="width: 300px;">
                       <a href="javascript:" onclick="return generateGraph()">Generate contacts tree</a>
@@ -73,10 +73,63 @@
             </div>
 
         </div>
+
+        <div id="params" style="margin-top: 312px; height: 450px; width: 450px; margin-left: 35px;">
+            <span>Maximum number of hops:</span>
+            <input id="max_hops" style="width: 100px" type="text" class="form-control" placeholder="Contacts tree" aria-describedby="basic-addon1" value=5><br>
+
+            <span>Time limit:</span>
+            <input id="time_limit" style="width: 100px" type="text" class="form-control" placeholder="Contacts tree" 
+            aria-describedby="basic-addon1" value=1000><br>
+
+            <span>Time to live:</span>
+            <input id="ttl" style="width: 100px" type="text" class="form-control" placeholder="Contacts tree" aria-describedby="basic-addon1" value=10><br>
+            
+            <span>Reply probility:</span>
+            <input id="reply_probility" style="width: 100px" type="text" class="form-control" placeholder="Contacts tree" aria-describedby="basic-addon1" value=1.0><br>
+            
+            <span>Forwarding probility:</span>
+            <input id="forwarding_probility" style="width: 100px" type="text" class="form-control" placeholder="Contacts tree" aria-describedby="basic-addon1" value=1.0><br>
+            
+            <span>Average age:</span>
+            <input id="average_age" style="width: 100px" type="text" class="form-control" placeholder="Contacts tree" aria-describedby="basic-addon1" value=25><br>
+            
+            <span>Standard deviation:</span>
+            <input id="standard_deviation" style="width: 100px" type="text" class="form-control" placeholder="Contacts tree" aria-describedby="basic-addon1" value=0.25><br>
+            
+            <span>Clasterization factor for sender (Q):</span>
+            <input id="clasterization_factor" style="width: 100px" type="text" class="form-control" placeholder="Contacts tree" aria-describedby="basic-addon1" value=0.8><br>
+            
+            <span>Time of message transition:</span>
+            <input id="transition_time" style="width: 100px" type="text" class="form-control" placeholder="Contacts tree" aria-describedby="basic-addon1" value=0.4><br>
+            
+            <span>Time to receiving message:</span>
+            <input id="receiving_time" style="width: 100px" type="text" class="form-control" placeholder="Contacts tree" aria-describedby="basic-addon1" value=0.4><br>
+            
+            <span>Time step:</span>
+            <input id="time_step" style="width: 100px" type="text" class="form-control" placeholder="Contacts tree" aria-describedby="basic-addon1" value=0.1><br>
+        </div>
+
         <div id="main_layout" style="height: 768px; width: 1200px; margin-left: 40px;">
-            <div id="cy"></div>
+            <div id="cy" style="margin-top: 400px;"></div>
         </div>
-        <div id="statistics" style="margin-left: 30px;">
-        </div>
-    </body>
+
+<div id="statistics" style="margin-left: 30px;">
+</div>
+
+<div id="votes" style="margin-left: 30px; margin-top: 20px;">
+</div>
+
+<div id="user_ages_table" style="margin-top: 30px; margin-left: 30px;">
+</div>
+
+<div id="requested_replies" style="margin-top: 30px; margin-left: 30px;">
+</div>
+
+<div id="aggregated_responses_per_reply" style="margin-top: 30px; margin-left: 30px;">
+</div>
+
+<div id="plots"></div>
+
+</body>
 </html>

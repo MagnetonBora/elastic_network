@@ -11,9 +11,25 @@ var onstop = function() {
 
 var simulate = function(profileSpreading) {
   var url = '/simulation';
+  var params = {
+    max_hops: parseInt(document.getElementById('max_hops').value),
+    time_limit: parseInt(document.getElementById('time_limit').value),
+    ttl: parseInt(document.getElementById('ttl').value),
+    reply_prob: parseFloat(document.getElementById('reply_probility').value),
+    forwarding_prob: parseFloat(document.getElementById('forwarding_probility').value),
+    avg_age: parseFloat(document.getElementById('average_age').value),
+    age_dev: parseFloat(document.getElementById('standard_deviation').value),
+    clasterization_factor: parseFloat(document.getElementById('clasterization_factor').value),
+    transition_time: parseFloat(document.getElementById('transition_time').value),
+    receiving_time: parseFloat(document.getElementById('receiving_time').value),
+    time_step: parseFloat(document.getElementById('time_step').value),
+    question: "What are the best movie?",
+    answers: ["A Beautiful mind", "Terminator", "Matrix"],
+  };
   var data = {
     spreading: profileSpreading,
-    graph: graph
+    graph: graph,
+    params: params,
   };
   $.ajax(url, {
     type: 'POST',
@@ -21,8 +37,77 @@ var simulate = function(profileSpreading) {
     success: function(response) {
       console.log('Done', response);
       showStatistics(response.statistics);
+      showAges(graph.nodes);
+      showPlots();
+      showVotes(response.statistics.votes);
+      showRepliesPerRequest(response.replies_stats);
+      showAggregatedResponsesPerReply(response.replies_stats);
     },
     contentType: 'application/json'
+  });
+};
+
+var showRepliesPerRequest = function(data) {
+  var requested_replies = $("#requested_replies");
+  requested_replies.append("<strong>Replies per request</strong><br>");
+  for(var i=0; i < data.length; i++) {
+    requested_replies.append("<span>" + data[i].user + ": " + data[i].requested_replies + "</span><br>");
+  };
+};
+
+var showAggregatedResponsesPerReply = function(data) {
+  var aggregated_responses_per_reply = $("#aggregated_responses_per_reply");
+  aggregated_responses_per_reply.append("<strong>Aggregated responses per reply</strong><br>");
+  for(var i=0; i < data.length; i++) {
+    aggregated_responses_per_reply.append(
+      "<span>" + data[i].user + ": " + "replies " + data[i].requested_replies + ", " +
+      "aggregated responses " + data[i].aggregated_responses + "</span><br>"
+    );
+  };
+};
+
+var showVotes = function(results) {
+  var votes = $("#votes");
+  votes.append("<span><strong>Total results of questionary:</strong></span><br>")
+  for(var i = 0; i < results.length; i++) {
+    votes.append("<span>" + results[i].voted_item + " got: " + results[i].votes_amount + " votes</span><br>");
+  }
+};
+
+var showPlots = function() {
+  var snippet =
+    '<div style=\"margin-top: 50px; margin-left: 20px;\">' +
+      '<span style=\"margin-left: 40px\">' +
+        '<strong>Values of clusterization factor Q = 0.8:</strong>' +
+      '</span><br>' +
+      '<img src=\"https://pp.vk.me/c604324/v604324845/107d8/15OVxYflxiY.jpg\" />' +
+      '<img src=\"https://pp.vk.me/c633128/v633128845/2b94a/UJI4j04ER-I.jpg\" />' +
+      '<img src=\"https://pp.vk.me/c628830/v628830845/46ed7/Qo_XQqpSzRI.jpg\" />' +
+    '</div>' +
+    '<div style=\"margin-top: 80px; margin-left: 20px;\">' +
+      '<strong>' +
+        '<span style=\"margin-left: 40px;\">' +
+          'Example which shows the shape of the age distribution with respect to value of clusterization factor' +
+        '</span><br>' +
+      '</strong>' +
+      '<img src=\"https://pp.vk.me/c633130/v633130845/27d17/5bOqezGJAAk.jpg\" />' +
+    '</div>' +
+    '<span style=\"margin-left: 60px;\">' +
+      '<strong>The formula of age distribution:</strong>' +
+      '<img src=\"https://pp.vk.me/c633130/v633130845/28338/9d-YvLqLseo.jpg\" /><br>' +
+    '</span>' +
+    '<span style=\"margin-left: 60px;\">' +
+    '<strong>The formula for clusterization factor:</strong>' +
+      '<img src=\"https://pp.vk.me/c633130/v633130845/2833f/LgwkoO_ziYc.jpg\" /><br>' +
+    '</span>';
+    $("#plots").append(snippet);
+};
+
+var showAges = function(nodes) {
+  var ages_table = $("#user_ages_table");
+  ages_table.append("<strong>Ages:</strong><br>");
+  _.each(nodes, function(node) {
+    ages_table.append('<span>' + node.data.name + ': ' + node.data.age + '<span><br>');
   });
 };
 
@@ -39,7 +124,7 @@ var showStatistics = function(statistics) {
     stats.append('<span>' + vote.votes_amount + '%&#32;of&#32;votes</span><br>');
   });
 
-  stats.append('<br><span><strong>Replies log:</strong></span><br>');
+  stats.append('<br><span><strong>Simulation log:</strong></span><br>');
   _.each(statistics.replies_log, function(reply) {
     stats.append('<span>' + reply + '</span><br>');
   });
@@ -194,6 +279,26 @@ var removeGraph = function(graphName) {
 var clearStats = function() {
   var stats = $("#statistics");
   _.each(stats.children(), function(child) {
+    child.remove();
+  });
+  var ages_table = $("#user_ages_table");
+  _.each(ages_table.children(), function(child) {
+    child.remove();
+  });
+  var plots = $("#plots");
+  _.each(plots.children(), function(child) {
+    child.remove();
+  });
+  var aggregated_responses_per_reply = $("#aggregated_responses_per_reply");
+  _.each(aggregated_responses_per_reply.children(), function(child) {
+    child.remove();
+  });
+  var requested_replies = $("#requested_replies");
+  _.each(requested_replies.children(), function(child) {
+    child.remove();
+  });
+  var votes = $("#votes");
+  _.each(votes.children(), function(child) {
     child.remove();
   });
 };
