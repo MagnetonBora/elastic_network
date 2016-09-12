@@ -39,9 +39,18 @@ var simulate = function(profileSpreading) {
       showStatistics(response.statistics);
       showAges(graph.nodes);
       showPlots();
+      showVotes(response.statistics.votes);
     },
     contentType: 'application/json'
   });
+};
+
+var showVotes = function(results) {
+  var votes = $("#votes");
+  votes.append("<span><strong>Total results of questionary:</strong></span><br>")
+  for(var i = 0; i < results.length; i++) {
+    votes.append("<span>" + results[i].voted_item + " got: " + results[i].votes_amount + " votes</span><br>");
+  }
 };
 
 var showPlots = function() {
