@@ -84,6 +84,7 @@ var showPlots = function() {
 
 var showAges = function(nodes) {
   var ages_table = $("#user_ages_table");
+  ages_table.append("<strong>Ages:</strong><br>");
   _.each(nodes, function(node) {
     ages_table.append('<span>' + node.data.name + ': ' + node.data.age + '<span><br>');
   });
