@@ -131,5 +131,35 @@
 
 <div id="plots"></div>
 
+<!--Ref: https://plot.ly/javascript/insets/#simple-inset-graph -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<div id="myDiv" style="width: 480px; height: 400px; display: none;"></div>
+<script>
+    var trace1 = {
+      x: [1, 2, 3], 
+      y: [4, 3, 2], 
+      type: 'scatter'
+    };
+    var trace2 = {
+      x: [20, 30, 40], 
+      y: [30, 40, 50], 
+      xaxis: 'x2', 
+      yaxis: 'y2', 
+      type: 'scatter'
+    };
+    var data = [trace1, trace2];
+    var layout = {
+      yaxis2: {
+        domain: [0.6, 0.95], 
+        anchor: 'x2'
+      }, 
+      xaxis2: {
+        domain: [0.6, 0.95], 
+        anchor: 'y2'
+      }
+    };
+    Plotly.newPlot('myDiv', data, layout);
+</script>
+
 </body>
 </html>
