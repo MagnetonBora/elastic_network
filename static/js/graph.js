@@ -80,9 +80,9 @@ var showPlots = function() {
       '<span style=\"margin-left: 40px\">' +
         '<strong>Values of clusterization factor Q = 0.8:</strong>' +
       '</span><br>' +
-      '<img src=\"https://pp.vk.me/c604324/v604324845/107d8/15OVxYflxiY.jpg\" />' +
-      '<img src=\"https://pp.vk.me/c633128/v633128845/2b94a/UJI4j04ER-I.jpg\" />' +
-      '<img src=\"https://pp.vk.me/c628830/v628830845/46ed7/Qo_XQqpSzRI.jpg\" />' +
+      '<img src=\"/static/images/1.jpg\" />' +
+      '<img src=\"/static/images/2.jpg\" />' +
+      '<img src=\"/static/images/3.jpg\" />' +
     '</div>' +
     '<div style=\"margin-top: 80px; margin-left: 20px;\">' +
       '<strong>' +
@@ -90,15 +90,15 @@ var showPlots = function() {
           'Example which shows the shape of the age distribution with respect to value of clusterization factor' +
         '</span><br>' +
       '</strong>' +
-      '<img src=\"https://pp.vk.me/c633130/v633130845/27d17/5bOqezGJAAk.jpg\" />' +
+      '<img src=\"/static/images/4.jpg\" />' +
     '</div>' +
     '<span style=\"margin-left: 60px;\">' +
       '<strong>The formula of age distribution:</strong>' +
-      '<img src=\"https://pp.vk.me/c633130/v633130845/28338/9d-YvLqLseo.jpg\" /><br>' +
+      '<img src=\"/static/images/5.jpg\" /><br>' +
     '</span>' +
     '<span style=\"margin-left: 60px;\">' +
     '<strong>The formula for clusterization factor:</strong>' +
-      '<img src=\"https://pp.vk.me/c633130/v633130845/2833f/LgwkoO_ziYc.jpg\" /><br>' +
+      '<img src=\"/static/images/6.jpg\" /><br>' +
     '</span>';
     $("#plots").append(snippet);
 };
