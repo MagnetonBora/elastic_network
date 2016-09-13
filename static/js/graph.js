@@ -83,23 +83,7 @@ var showPlots = function() {
       '<img src=\"/static/images/1.jpg\" />' +
       '<img src=\"/static/images/2.jpg\" />' +
       '<img src=\"/static/images/3.jpg\" />' +
-    '</div>' +
-    '<div style=\"margin-top: 80px; margin-left: 20px;\">' +
-      '<strong>' +
-        '<span style=\"margin-left: 40px;\">' +
-          'Example which shows the shape of the age distribution with respect to value of clusterization factor' +
-        '</span><br>' +
-      '</strong>' +
-      '<img src=\"/static/images/4.jpg\" />' +
-    '</div>' +
-    '<span style=\"margin-left: 60px;\">' +
-      '<strong>The formula of age distribution:</strong>' +
-      '<img src=\"/static/images/5.jpg\" /><br>' +
-    '</span>' +
-    '<span style=\"margin-left: 60px;\">' +
-    '<strong>The formula for clusterization factor:</strong>' +
-      '<img src=\"/static/images/6.jpg\" /><br>' +
-    '</span>';
+    '</div>';
     $("#plots").append(snippet);
 };
 
@@ -214,14 +198,37 @@ var formatEdges = function(edges) {
 };
 
 var generateGraph = function() {
-  $.get("/generate-tree", function(response) {
-    console.log('Received data: ', response);
-    graph = {
-      root: response.root,
-      nodes: formatNodes(response.nodes),
-      edges: formatEdges(response.edges)
+  var params = {
+    max_hops: parseInt(document.getElementById('max_hops').value),
+    time_limit: parseInt(document.getElementById('time_limit').value),
+    ttl: parseInt(document.getElementById('ttl').value),
+    reply_prob: parseFloat(document.getElementById('reply_probility').value),
+    forwarding_prob: parseFloat(document.getElementById('forwarding_probility').value),
+    avg_age: parseFloat(document.getElementById('average_age').value),
+    age_dev: parseFloat(document.getElementById('standard_deviation').value),
+    clasterization_factor: parseFloat(document.getElementById('clasterization_factor').value),
+    transition_time: parseFloat(document.getElementById('transition_time').value),
+    receiving_time: parseFloat(document.getElementById('receiving_time').value),
+    time_step: parseFloat(document.getElementById('time_step').value),
+    question: "What are the best movie?",
+    answers: ["A Beautiful mind", "Terminator", "Matrix"],
+  };
+  var data = {
+    params: params,
+  };
+  $.ajax('/generate-tree', {
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(data),
+    success: function(response) {
+      console.log('Received data: ', response);
+      graph = {
+        root: response.root,
+        nodes: formatNodes(response.nodes),
+        edges: formatEdges(response.edges)
+      }
+      renderGraph(graph.nodes, graph.edges, graph.root, {name: 'cose-bilkent'});
     }
-    renderGraph(graph.nodes, graph.edges, graph.root, {name: 'cose-bilkent'});
   });
 };
 

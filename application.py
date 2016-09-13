@@ -5,10 +5,10 @@ import logging
 
 from flask import request
 from contactstree import deserialize
-from config import SETTINGS, AGE_PARAMS, DEPTH
 from flask import render_template, url_for, Flask
 from utils import ContactsManager, ContactsTree, SimulationManager, UserInfo, User
 
+DEPTH = 2
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -33,17 +33,6 @@ def make_edges(userslist):
 def home():
     graphs = os.listdir('data/graphs')
     return render_template("index.html", graphs=graphs)
-
-
-@app.route('/tree')
-def tree():
-    with app.app_context():
-        sender = ContactsTree(DEPTH, AGE_PARAMS).generate_tree()
-        simulator = SimulationManager(sender=sender, settings=SETTINGS)
-        users = simulator.traverse()
-        edges = make_edges(users)
-        logger.info("Generating test tree {}".format(users))
-        return flask.jsonify(dict(edges=edges, users=users))
 
 
 @app.route('/simulation', methods=['POST'])
@@ -71,11 +60,19 @@ def simulation():
         return flask.jsonify(response)
 
 
-@app.route('/generate-tree')
+@app.route('/generate-tree', methods=['POST'])
 def generate_tree():
     with app.app_context():
-        sender = ContactsTree(DEPTH, AGE_PARAMS).generate_tree()
-        simulator = SimulationManager(sender=sender, settings=SETTINGS)
+        data = flask.json.loads(request.data)
+        params = data['params']
+        age_params = {
+            'avg_age': params['avg_age'],
+            'age_dev': params['age_dev']
+        }
+        sender = ContactsTree(DEPTH, age_params).generate_tree()
+        settings = {}
+        settings.update(data['params'])
+        simulator = SimulationManager(sender=sender, settings=settings)
         nodes = simulator.traverse()
         return flask.jsonify(dict(root=sender.to_dict(), nodes=nodes, edges=make_edges(nodes)))
 
