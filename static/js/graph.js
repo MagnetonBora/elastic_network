@@ -38,10 +38,10 @@ var simulate = function(profileSpreading) {
       console.log('Done', response);
       showStatistics(response.statistics);
       showAges(graph.nodes);
-      showPlots();
       showVotes(response.statistics.votes);
       showRepliesPerRequest(response.replies_stats);
       showAggregatedResponsesPerReply(response.replies_stats);
+      showPlots(graph.nodes);
     },
     contentType: 'application/json'
   });
@@ -74,17 +74,81 @@ var showVotes = function(results) {
   }
 };
 
-var showPlots = function() {
+var calcPoints = function(start, end, step, mean, sigma, name) {
+    var X = [], Y = [];
+    var Q = 1.0 / (sigma + 1);
+    for(var x = start; x <= end; x += step) {
+        X.push(x);
+        y = 1.0 / (sigma * Math.sqrt(2 * Math.PI)) * Math.exp( - (x - mean)*(x - mean) / (2 * sigma * sigma) );
+        Y.push(y);
+    };
+    return {
+      x: X,
+      y: Y,
+      xaxis: 'x1',
+      yaxis: 'y1',
+      name: name,
+      type: 'scatter'
+    };
+};
+
+var drawAgesDistribution = function(data) {
+    var layout = {
+      title: 'Ages distribution',
+      xaxis: {
+        title: 'ages'
+      },
+      yaxis: {
+        title: 'PDF'
+      }
+    };
+    Plotly.newPlot('ages_distribution', data, layout);
+};
+
+var drawClusterizationFactor = function(start, end, step) {
+    var X = [], Y = [];
+    for(var x = start; x <= end; x += step) {
+        X.push(x);
+        y = 1.0 / x;
+        Y.push(y);
+    }
+    var layout = {
+        title: 'Illustration of clusterization factor',
+        xaxis: {
+          title: 'clusterization factor'
+        },
+        yaxis: {
+          title: 'Sigma'
+        }
+    };
+    var trace = {
+      x: X,
+      y: Y,
+      xaxis: 'x1',
+      yaxis: 'y1',
+      type: 'scatter'
+    };
+    Plotly.newPlot('clusterization_factor', [trace], layout);
+};
+
+var drawEfficiency = function() {
   var snippet =
     '<div style=\"margin-top: 50px; margin-left: 20px;\">' +
-      '<span style=\"margin-left: 40px\">' +
-        '<strong>Values of clusterization factor Q = 0.8:</strong>' +
-      '</span><br>' +
-      '<img src=\"/static/images/1.jpg\" />' +
-      '<img src=\"/static/images/2.jpg\" />' +
-      '<img src=\"/static/images/3.jpg\" />' +
+    '<img src=\"/static/images/3.jpg\" />' +
     '</div>';
-    $("#plots").append(snippet);
+    $("#efficiency").append(snippet);
+};
+
+var showPlots = function(nodes) {
+    var avg_age = parseFloat(document.getElementById("average_age").value);
+    var std_dev = parseFloat(document.getElementById("standard_deviation").value);
+    var ages_data = [];
+    _.each(nodes, function(node) {
+      ages_data.push(calcPoints(10, 70, 0.1, node.data.age, std_dev, node.data.name));
+    });
+    drawAgesDistribution(ages_data);
+    drawClusterizationFactor(0.01, 1, 0.01);
+    drawEfficiency();
 };
 
 var showAges = function(nodes) {
@@ -284,28 +348,20 @@ var removeGraph = function(graphName) {
 };
 
 var clearStats = function() {
-  var stats = $("#statistics");
-  _.each(stats.children(), function(child) {
-    child.remove();
-  });
-  var ages_table = $("#user_ages_table");
-  _.each(ages_table.children(), function(child) {
-    child.remove();
-  });
-  var plots = $("#plots");
-  _.each(plots.children(), function(child) {
-    child.remove();
-  });
-  var aggregated_responses_per_reply = $("#aggregated_responses_per_reply");
-  _.each(aggregated_responses_per_reply.children(), function(child) {
-    child.remove();
-  });
-  var requested_replies = $("#requested_replies");
-  _.each(requested_replies.children(), function(child) {
-    child.remove();
-  });
-  var votes = $("#votes");
-  _.each(votes.children(), function(child) {
-    child.remove();
+  var ids = [
+    "#clusterization_factor",
+    "#efficiency",
+    "#ages_distribution",
+    "#statistics",
+    "#user_ages_table",
+    "#aggregated_responses_per_reply",
+    "#requested_replies",
+    "#votes"
+  ];
+  _.each(ids, function(id) {
+    var elements = $(id);
+    _.each(elements.children(), function(child) {
+      child.remove();
+    });
   });
 };
