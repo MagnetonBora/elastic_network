@@ -22,6 +22,7 @@
     <script type="text/javascript" src="static/js/graph.js"></script>
     <script type="text/javascript" src="static/js/cytoscape-spread.js"></script>
     <script type="text/javascript" src="static/js/cytoscape-cose-bilkent.js"></script>
+    <script type="text/javascript" src="static/js/plotly-latest.min.js"></script>
     <body>
         <div id="menu">
 
@@ -129,31 +130,9 @@
 <div id="aggregated_responses_per_reply" style="margin-top: 30px; margin-left: 30px;">
 </div>
 
-<div id="plots"></div>
-
-<!--Ref: https://plot.ly/javascript/insets/#simple-inset-graph -->
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<div id="ages_distribution" style="width: 480px; height: 400px;"></div>
-<script>
-    (function(start, end, step) {
-        var X = [], Y = [];
-        var mean = 0, sigma = 1;
-        for(var x = start; x <= end; x += step) {
-            X.push(x);
-            y = 1 / (sigma * Math.sqrt(2 * Math.PI)) * Math.exp( - (x - mean)*(x - mean) / (2 * sigma * sigma) );
-            Y.push(y);
-        }
-        var trace = {
-          x: X,
-          y: Y,
-          xaxis: 'x1',
-          yaxis: 'y1',
-          type: 'scatter'
-        };
-        var data = [trace];
-        Plotly.newPlot('ages_distribution', data);
-    })(-5, 5, 0.1);
-</script>
+<div id="ages_distribution" style="width: 1200px; height: 500px;"></div>
+<div id="clusterization_factor" style="width: 1200px; height: 500px;"></div>
+<div id="efficiency" style="width: 1200px; height: 500px;"></div>
 
 </body>
 </html>
