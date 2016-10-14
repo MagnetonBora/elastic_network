@@ -120,4 +120,5 @@ def _create_folder_structure():
 
 if __name__ == '__main__':
     _create_folder_structure()
-    app.run()
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
