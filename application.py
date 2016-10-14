@@ -31,7 +31,8 @@ def make_edges(userslist):
 
 @app.route('/')
 def home():
-    graphs = os.listdir('data/graphs')
+#    graphs = os.listdir('data/graphs')
+    graphs = os.listdir('examples')
     return render_template("index.html", graphs=graphs)
 
 
